@@ -8,7 +8,7 @@ import Foundation
 
 extension Subs {
 
-  enum Screen {
+  public enum Screen {
 
     case initial
 

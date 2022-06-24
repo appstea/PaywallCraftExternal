@@ -152,31 +152,23 @@ extension Subs {
     }
 
     public typealias SubsCompletion = () -> Void
-    public func showSubscription(source: Subs.Source, intent: Subs.Intent,
+    public func showSubscription(source: Subs.Source, screen: Subs.Screen,
                                  from presenter: UIViewController? = nil,
                                  completion: SubsCompletion? = nil) {
       guard let sessionIdx = SessionService.current?.currentSessionIdx else { return }
 
       DispatchQueue.main.async { [weak self] in
         let context = Context(sessionNumber: sessionIdx)
-        self?._showSubsScreen(source: source, intent: intent, context: context) {
+        self?._showSubsScreen(source: source, screen: screen, context: context) {
           completion?()
         }
       }
     }
 
     @MainActor
-    func subsScreen(source: Subs.Source, intent: Subs.Intent,
+    func subsScreen(source: Subs.Source, screen: Subs.Screen,
                     completion: SubsCompletion? = nil) async -> Subs.ViewController {
-      _subsScreenViewController(source: source, intent: intent, completion: completion)
-    }
-
-    func showSubscription(source: Subs.Source, screen: Subs.Screen, intent: Subs.Intent,
-                          from presenter: UIViewController? = nil, completion: (() -> Void)? = nil) {
-      guard let sessionIdx = SessionService.current?.currentSessionIdx else { return }
-
-      let context = Context(sessionNumber: sessionIdx)
-      _showSubsScreen(source: source, screen: screen, intent: intent, context: context, from: presenter, completion: completion)
+      _subsScreenViewController(source: source, screen: screen, completion: completion)
     }
 
     func sync() {
@@ -191,11 +183,11 @@ extension Subs {
       manager.hasProducts
     }
 
-    func productsList(for intent: Subs.Intent? = nil) -> [StoreProduct] {
-      manager.productsList(for: intent)
+    func productsList(for screen: Subs.Screen? = nil) -> [StoreProduct] {
+      manager.productsList(for: screen)
     }
 
-    func purchase(_ product: StoreProduct, intent: Subs.Intent, source: Subs.Source, block: ((Bool) -> Void)? = nil) {
+    func purchase(_ product: StoreProduct, screen: Subs.Screen, source: Subs.Source, block: ((Bool) -> Void)? = nil) {
       manager.purchase(product: product, source: source) { result in
         switch result {
         case .purchased: block?(true)
@@ -230,23 +222,21 @@ private extension Subs.Service {
 //      .bind(to: self)
   }
 
-  func _showSubsScreen(source: Subs.Source, screen: Subs.Screen? = nil, intent: Subs.Intent, context: Subs.Context,
+  func _showSubsScreen(source: Subs.Source, screen: Subs.Screen, context: Subs.Context,
                        from presenter: UIViewController? = nil,
                        completion: (() -> Void)? = nil) {
-    let screen = screen ?? .initial
     DispatchQueue.main.async { [weak self] in
       guard let self = self, !self.isPremium,
             let presenter = presenter ?? UIService.shared?.presenter
       else { return }
 
-      self.manager.showSubsScreen(source: source, screen: screen, intent: intent, from: presenter)
+      self.manager.showSubsScreen(source: source, screen: screen, from: presenter)
     }
   }
 
-  func _subsScreenViewController(source: Subs.Source, screen: Subs.Screen? = nil, intent: Subs.Intent,
+  func _subsScreenViewController(source: Subs.Source, screen: Subs.Screen,
                                  completion: SubsCompletion? = nil) -> Subs.ViewController {
-    let screen = screen ?? .initial
-    return manager.subsScreen(source: source, screen: screen, intent: intent, completion: completion)
+    manager.subsScreen(source: source, screen: screen, completion: completion)
   }
 
 }

@@ -83,7 +83,7 @@ final public class Instance: Cascade.AppDelegate {
     }
 
     HUD.show()
-    let vc = await Subs.Service.shared?.subsScreen(source: .onboarding, intent: .onStart)
+    let vc = await Subs.Service.shared?.subsScreen(source: .onboarding, screen: .initial)
     HUD.dismiss()
     window.rootViewController = vc
     window.makeKeyAndVisible()
@@ -95,11 +95,11 @@ final public class Instance: Cascade.AppDelegate {
     await UIService.shared?.checkIDFAAccessIfNeeded()
   }
 
-  public func banner(source: Subs.Source, intent: Subs.Intent, presenter: UIViewController) -> BannerView {
+  public func banner(source: Subs.Source, screen: Subs.Screen, presenter: UIViewController) -> BannerView {
     BannerBuilder(config: config.ui.banner, showCtxProvider: { [weak presenter] in
       guard let presenter = presenter else { return nil }
 
-      return .init(source: source, intent: intent, presenter: presenter)
+      return .init(source: source, screen: screen, presenter: presenter)
     }).build()
   }
 

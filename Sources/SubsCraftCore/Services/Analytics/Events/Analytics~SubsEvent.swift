@@ -9,14 +9,14 @@ import Foundation
 
 import AnalyticsCraft
 
-typealias Subscription = Subs
-
 extension Analytics.Event {
 
   enum Subs: IAnalyticsEvent {
 
-    case upsellShown(intent: Subscription.Intent, source: Subscription.Source)
-    case productSelected(intent: Subscription.Intent, source: Subscription.Source, productId: String)
+    typealias Subs = SubsCraftCore.Subs
+
+    case upsellShown(source: Subs.Source, screen: Subs.Screen)
+    case productSelected( source: Subs.Source, screen: Subs.Screen, productId: String)
 
     var name: String {
       switch self {
@@ -28,14 +28,14 @@ extension Analytics.Event {
      // TODO: Screen Id?
     var params: [String: Any]? {
       switch self {
-      case .upsellShown(let intent, let source):
+      case .upsellShown(let source, let screen):
         return [
-          "Screen ID": "Initial",
+          "Screen ID": screen.value,
           "Source": source.value,
         ]
-      case .productSelected(let intent, let source, let productId):
+      case .productSelected(let source, let screen, let productId):
         return [
-          "Screen ID": "Initial",
+          "Screen ID": screen.value,
           "Source": source.value,
           "Product ID": productId,
         ]
@@ -72,15 +72,13 @@ extension Subs.Source: IAnalyticsValue {
 
 }
 
-extension Subs.Intent: IAnalyticsValue {
+// MARK: - Subs.Screen
+
+extension Subs.Screen: IAnalyticsValue {
 
   public var value: String {
     switch self {
-    case .onStart: return "Initial"
-    case .normal: return "Upsell"
-#if DEBUG
-    case .products: return "Custom"
-#endif
+    case .initial: return "Initial"
     }
   }
 
