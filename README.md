@@ -12,6 +12,7 @@
 * Add next fields to Info.plst:
 - FirebaseAppDelegateProxyEnabled = NO
 - branch_key = <Your branch api key> # e.g. key_live_pj3V9nLR39qPjoKPG34IFcjnCDmV0OCI
+- in case of using fastlane add `use_system_scm: false` to `gym` call
 
 ## Code
 
