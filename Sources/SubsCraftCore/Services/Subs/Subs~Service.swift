@@ -171,7 +171,6 @@ extension Subs {
       _subsScreenViewController(source: source, intent: intent, completion: completion)
     }
 
-#if DEBUG
     func showSubscription(source: Subs.Source, screen: Subs.Screen, intent: Subs.Intent,
                           from presenter: UIViewController? = nil, completion: (() -> Void)? = nil) {
       guard let sessionIdx = SessionService.current?.currentSessionIdx else { return }
@@ -179,7 +178,6 @@ extension Subs {
       let context = Context(sessionNumber: sessionIdx)
       _showSubsScreen(source: source, screen: screen, intent: intent, context: context, from: presenter, completion: completion)
     }
-#endif
 
     func sync() {
       manager.syncIfNeeded()
