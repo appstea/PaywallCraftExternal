@@ -329,12 +329,12 @@ private extension Subs.InitialVC {
     var changed = false
 
 //    let trial = imageType == .additional ? subs?.productsList(for: .additionTrial).first : subs?.productsList(for: .none).first
-    let trial = subs?.productsList().first
+    let trial = subs?.productsList(for: screen).first
 
     changed = changed || trial != trialProduct
     trialProduct = trial
 
-    if let instProduct = subs?.productsList(for: .none).enumerated().first(where: {$0.0 == 1})?.1 {
+    if let instProduct = subs?.productsList().enumerated().first(where: {$0.0 == 1})?.1 {
 //      let instant = imageType == .additional ? subs?.productsList(for: .additionInstant).first : instProduct
       let instant = instProduct
       changed = changed || instant != instantProduct

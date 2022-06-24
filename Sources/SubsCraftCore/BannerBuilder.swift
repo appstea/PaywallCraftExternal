@@ -39,12 +39,12 @@ struct BannerBuilder {
 
   struct ShowCtx {
     let source: Subs.Source
-    let intent: Subs.Intent
+    let screen: Subs.Screen
     let presenter: UIViewController
 
-    public init(source: Subs.Source, intent: Subs.Intent, presenter: UIViewController) {
+    public init(source: Subs.Source, screen: Subs.Screen, presenter: UIViewController) {
       self.source = source
-      self.intent = intent
+      self.screen = screen
       self.presenter = presenter
     }
   }
@@ -60,7 +60,7 @@ struct BannerBuilder {
       guard let ctx = showContext() else { return }
 
 //      Subs.Service.shared?.showSubscription(source: .bottomUpsell, intent: .normal, from: self)
-      Subs.Service.shared?.showSubscription(source: ctx.source, intent: ctx.intent, from: ctx.presenter)
+      Subs.Service.shared?.showSubscription(source: ctx.source, screen: ctx.screen, from: ctx.presenter)
     }
 
     addObservers(to: result)

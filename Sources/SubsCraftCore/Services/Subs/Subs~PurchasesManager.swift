@@ -91,9 +91,9 @@ extension Subs {
     // MARK: - Public
     // MARK: - UI
 
-    func subsScreen(source: Subs.Source, screen: Subs.Screen, intent: Subs.Intent,
+    func subsScreen(source: Subs.Source, screen: Subs.Screen,
                     completion: (() -> Void)? = nil) -> Subs.ViewController {
-      let result = Subs.InitialVC(config: config, source: source, intent: intent, onClose: { vc in
+      let result = Subs.InitialVC(config: config, source: source, screen: screen, onClose: { vc in
         vc.dismiss(animated: true)
         completion?()
       })
@@ -103,21 +103,21 @@ extension Subs {
       return result
     }
 
-    func showSubsScreen(source: Subs.Source, screen: Subs.Screen, intent: Subs.Intent,
+    func showSubsScreen(source: Subs.Source, screen: Subs.Screen, 
                         from presenter: UIViewController, completion: (() -> Void)? = nil) {
       if let current = currentSubsScreen {
         if current.source == source,
-           current.intent == intent {
+           current.screen == screen {
           return
         }
 
         hideCurrentSubsScreen(animated: true) { [weak self] in
-          self?.showSubsScreen(source: source, screen: screen, intent: intent,
+          self?.showSubsScreen(source: source, screen: screen,
                                from: presenter, completion: completion)
         }
       }
 
-      let subsVC = subsScreen(source: source, screen: screen, intent: intent) { [weak self] in
+      let subsVC = subsScreen(source: source, screen: screen) { [weak self] in
         self?.currentSubsScreen = nil
         completion?()
       }
@@ -244,6 +244,7 @@ extension Subs {
       HUD.show()
       Purchases.shared.restorePurchases { [weak self] customInfo, error in
         defer { HUD.dismiss() }
+        guard let self = self else { return }
 
         guard error == nil else {
 
@@ -251,8 +252,8 @@ extension Subs {
           return
         }
 
-        if Subs.Product.allCases.contains(where: { customInfo?.entitlements[$0.id]?.isActive == true }) {
-          self?.premium = true
+        if self.products.contains(where: { customInfo?.entitlements[$0.productIdentifier]?.isActive == true }) {
+          self.premium = true
           block?(.success)
         }
         else {
@@ -261,24 +262,11 @@ extension Subs {
       }
     }
 
-    func productsList(for intent: Subs.Intent?) -> [StoreProduct] {
-      switch intent {
-      case .normal:
-        return products.filter { $0.productIdentifier == Subs.Product.monthly.id }
-      case .onStart:
-        return products.filter { $0.productIdentifier == Subs.Product.monthly.id }
-//      case .additionTrial:
-//        return products.filter { $0.productIdentifier == Subs.Product.oneMonth_sevenDaysTrial.id }
-//      case .additionInstant:
-//        return products.filter { $0.productIdentifier == Subs.Product.threeMonths.id }
-//      case .instant:
-//        return products.filter { $0.productIdentifier == Subs.Product.quarterly.id }
-//      case .trial:
+    func productsList(for screen: Subs.Screen?) -> [StoreProduct] {
+      switch screen {
+      case .initial:
 //        return products.filter { $0.productIdentifier == Subs.Product.monthly.id }
-#if DEBUG
-      case .products(let products):
-        return self.products.filter { products.map(\.id).contains($0.productIdentifier) }
-#endif
+        return Array(products.prefix(2))
       case .none:
         return products
       }
@@ -354,7 +342,7 @@ private extension Subs.PurchasesManager {
       return
     }
 
-    premium = Subs.Product.allCases.contains { info.entitlements[$0.id]?.isActive == true }
+    premium = products.contains { info.entitlements[$0.productIdentifier]?.isActive == true }
   }
 
 }

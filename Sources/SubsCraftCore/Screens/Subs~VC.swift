@@ -21,8 +21,8 @@ extension Subs {
   open class ViewController: UIBase.ViewController {
 
     public let config: Config
+    public let screen: Screen
     public let source: Source
-    public let intent: Intent
 
     private var onClose: ((UIViewController) -> Void)?
     private var continuation: CheckedContinuation<Void, Never>?
@@ -34,10 +34,10 @@ extension Subs {
 
     // MARK: - Init
 
-    public init(config: Config, source: Source, intent: Intent, onClose: ((UIViewController) -> Void)? = nil) {
+    public init(config: Config, source: Source, screen: Screen, onClose: ((UIViewController) -> Void)? = nil) {
       self.config = config
       self.source = source
-      self.intent = intent
+      self.screen = screen
       self.onClose = onClose
       super.init(nibName: nil, bundle: nil)
     }
@@ -53,7 +53,7 @@ extension Subs {
       Notification.Subs.Update
         .observe { [weak self] in self?.didUpdateSubsStatus() }
         .bind(to: self)
-      analytics?.sendSubsEvent(.upsellShown(intent: intent, source: source))
+      analytics?.sendSubsEvent(.upsellShown(source: source, screen: screen))
     }
 
     open func didUpdateSubsStatus() { }
@@ -76,9 +76,9 @@ extension Subs {
     public func purchase(_ product: StoreProduct?) {
       if let product = product {
         analytics?.sendSubsEvent(
-          .productSelected(intent: intent, source: source, productId: product.productIdentifier))
+          .productSelected(source: source, screen: screen, productId: product.productIdentifier))
 
-        subs?.purchase(product, intent: intent, source: source) { [weak self] success in
+        subs?.purchase(product, screen: screen, source: source) { [weak self] success in
           if success {
             self?.close()
           }
