@@ -91,7 +91,7 @@ final public class Instance: Cascade.AppDelegate {
     await vc?.result()
   }
 
-  public func checkIDFAAccessIfNeeded() async {
+  public func checkATT() async {
     await UIService.shared?.checkIDFAAccessIfNeeded()
   }
 
