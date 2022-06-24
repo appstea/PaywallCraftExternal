@@ -25,16 +25,17 @@ extension Analytics.Event {
       }
     }
 
+     // TODO: Screen Id?
     var params: [String: Any]? {
       switch self {
       case .upsellShown(let intent, let source):
         return [
-          "Screen ID": intent.value,
+          "Screen ID": "Initial",
           "Source": source.value,
         ]
       case .productSelected(let intent, let source, let productId):
         return [
-          "Screen ID": intent.value,
+          "Screen ID": "Initial",
           "Source": source.value,
           "Product ID": productId,
         ]
@@ -80,10 +81,6 @@ extension Subs.Intent: IAnalyticsValue {
 #if DEBUG
     case .products: return "Custom"
 #endif
-//    case .additionTrial: return "Offer"
-//    case .additionInstant: return "Offer"
-//    case .instant: return "Custom"
-//    case .trial: return "Custom"
     }
   }
 
