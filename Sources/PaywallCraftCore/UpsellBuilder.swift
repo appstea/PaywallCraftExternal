@@ -59,8 +59,8 @@ struct UpsellBuilder {
     result.onClick = {
       guard let ctx = showContext() else { return }
 
-//      Paywall.Service.shared?.showPaywallcription(source: .bottomUpsell, intent: .normal, from: self)
-      Paywall.Service.shared?.showPaywallcription(source: ctx.source, screen: ctx.screen, from: ctx.presenter)
+//      Paywall.Service.shared?.showPaywall(source: .bottomUpsell, intent: .normal, from: self)
+      Paywall.Service.shared?.showPaywall(source: ctx.source, screen: ctx.screen, from: ctx.presenter)
     }
 
     addObservers(to: result)

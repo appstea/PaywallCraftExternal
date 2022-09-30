@@ -13,7 +13,7 @@ import NotificationCraft
 
 extension Stored {
 
-  @StorageKey("paywallcription.session.index", defaultValue: 0)
+  @StorageKey("paywall.session.index", defaultValue: 0)
   fileprivate(set) static var sessionIdx: Int
 
 }

@@ -19,7 +19,7 @@ import PaywallCraftResources
 
 public extension Config.UI {
 
-  typealias Paywallcription = PaywallCraftCore.Paywall.ViewModel
+  typealias Paywall = PaywallCraftCore.Paywall.ViewModel
 
 }
 
@@ -128,7 +128,7 @@ extension Paywall {
 
     private func instantText(for product: StoreProduct?) -> NSAttributedString? {
       guard let product = product,
-            let period = product.paywallcriptionPeriod
+            let period = product.subscriptionPeriod
       else { return nil }
 
       var shouldAddSubtitle = instantShouldShowSubtitle

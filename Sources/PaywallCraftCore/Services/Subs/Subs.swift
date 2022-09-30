@@ -13,7 +13,7 @@ public enum Paywall { }
 
 extension Stored {
 
-  @StorageKey("paywallcription.session.isPremium", defaultValue: false)
+  @StorageKey("paywall.session.isPremium", defaultValue: false)
   static var isPremium: Bool
 
 }
