@@ -73,7 +73,7 @@ fileprivate extension SKProduct {
 
   /// $3.33 for $9.99 per quartal
   func localizedUnitPrice() -> String {
-    let unitPrice = price.dividing(by: .init(integerLiteral: paywallcriptionPeriod?.numberOfUnits ?? 1))
+    let unitPrice = price.dividing(by: .init(integerLiteral: subscriptionPeriod?.numberOfUnits ?? 1))
     return numberFormatter.string(from: unitPrice) ?? ""
   }
 
@@ -98,7 +98,7 @@ fileprivate extension SKProduct {
   }
 
   func localizedPeriodUnit() -> String {
-    paywallcriptionPeriod?.map({ localizedPeriod(for: $0.unit) }) ?? ""
+    subscriptionPeriod?.map({ localizedPeriod(for: $0.unit) }) ?? ""
   }
 
   // MARK: - Utils
@@ -115,7 +115,7 @@ fileprivate extension SKProduct {
   }
 
   func localizedPeriod() -> String {
-    paywallcriptionPeriod?.map {
+    subscriptionPeriod?.map {
       typealias L10n = PaywallCraftResources.L10n.Paywall.Period
       switch $0.unit {
       case .day:
@@ -136,11 +136,11 @@ fileprivate extension SKProduct {
   }
 
   func trialCount() -> Int {
-    if introductoryPrice?.paywallcriptionPeriod.numberOfUnits == 1 {
+    if introductoryPrice?.subscriptionPeriod.numberOfUnits == 1 {
       return 7
     }
     else {
-      return introductoryPrice?.paywallcriptionPeriod.numberOfUnits ?? 0
+      return introductoryPrice?.subscriptionPeriod.numberOfUnits ?? 0
     }
   }
 

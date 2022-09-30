@@ -20,7 +20,7 @@ import PaywallCraftResources
 
 extension Stored {
 
-  @StorageKey("paywallcription.didPassPrepermission", defaultValue: false)
+  @StorageKey("paywall.didPassPrepermission", defaultValue: false)
   fileprivate(set) static var didPassPrepermission: Bool
 
 }

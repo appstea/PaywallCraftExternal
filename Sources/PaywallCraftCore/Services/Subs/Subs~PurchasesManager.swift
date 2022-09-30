@@ -97,7 +97,7 @@ extension Paywall {
         vc.dismiss(animated: true)
         completion?()
       })
-      if let vm = config.ui.paywallcription {
+      if let vm = config.ui.paywall {
         result.viewModel = vm
       }
       return result

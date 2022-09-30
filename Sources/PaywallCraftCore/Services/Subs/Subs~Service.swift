@@ -152,9 +152,9 @@ extension Paywall {
     }
 
     public typealias PaywallCompletion = () -> Void
-    public func showPaywallcription(source: Paywall.Source, screen: Paywall.Screen,
-                                 from presenter: UIViewController? = nil,
-                                 completion: PaywallCompletion? = nil) {
+    public func showPaywall(source: Paywall.Source, screen: Paywall.Screen,
+                            from presenter: UIViewController? = nil,
+                            completion: PaywallCompletion? = nil) {
       guard let sessionIdx = SessionService.current?.currentSessionIdx else { return }
 
       DispatchQueue.main.async { [weak self] in
@@ -212,11 +212,11 @@ private extension Paywall.Service {
 //        else { return }
 //
 //        if session % $0.paywallShowSessionInterval == 0 && session != 1 {
-//          self.showPaywallcription(source: .sessionStart, intent: .onStart)
+//          self.showPaywall(source: .sessionStart, intent: .onStart)
 //
 //        }
 //        else if (session == $0.offerShowSessionInterval || ((session - $0.offerShowSessionInterval)  % $0.offerShowSessionRepeat == 0)) && session != 1 {
-//          self.showPaywallcription(source: .bottomUpsell, intent: .additionInstant, session: session)
+//          self.showPaywall(source: .bottomUpsell, intent: .additionInstant, session: session)
 //        }
 //      }
 //      .bind(to: self)

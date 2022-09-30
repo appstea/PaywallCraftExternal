@@ -27,16 +27,16 @@ public extension Config {
 
   struct UI {
     let permissions: Permissions?
-    let paywallcription: Paywallcription?
+    let paywall: Paywall?
     let upsell: Upsell?
 
     public init(
       permissions: Permissions? = nil,
-      paywallcription: Paywallcription? = nil,
+      paywall: Paywall? = nil,
       upsell: Upsell? = nil
     ) {
       self.permissions = permissions
-      self.paywallcription = paywallcription
+      self.paywall = paywall
       self.upsell = upsell
     }
   }

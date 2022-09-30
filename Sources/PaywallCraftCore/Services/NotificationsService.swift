@@ -11,7 +11,7 @@ import Stored
 
 extension Stored {
 
-  @StorageKey("paywallcription.notifications.enabled", defaultValue: true)
+  @StorageKey("paywall.notifications.enabled", defaultValue: true)
   static var isNotificationsEnabled: Bool
 
 }

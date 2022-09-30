@@ -18,7 +18,7 @@ import PaywallCraftResources
 
 extension Stored {
 
-  @StorageKey("paywallcription.launch.index", defaultValue: 1)
+  @StorageKey("paywall.launch.index", defaultValue: 1)
   fileprivate(set) static var launchIdx: Int
 
 }
