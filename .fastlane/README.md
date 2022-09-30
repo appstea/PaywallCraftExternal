@@ -31,27 +31,6 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ----
 
-
-## iOS
-
-### ios adhoc
-
-```sh
-[bundle exec] fastlane ios adhoc
-```
-
-
-
-### ios update_profiles
-
-```sh
-[bundle exec] fastlane ios update_profiles
-```
-
-
-
-----
-
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
 
 More information about _fastlane_ can be found on [fastlane.tools](https://fastlane.tools).

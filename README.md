@@ -1,9 +1,9 @@
-# SubsCraft
+# PaywallCraft
 
 ## Common
 
 * Give repository read permissions to your github account
-* Add dependency https://github.com/appstea/SubsCraft.git to your target via SPM
+* Add dependency https://github.com/appstea/PaywallCraft.git to your target via SPM
 * Add github token to xcode account to let xcode fetch package from private repo via SPM
 
 ## Project
@@ -18,13 +18,13 @@
 
 * Example of integration via config:
 ```
-import SubsCraftCore
+import PaywallCraftCore
 
-enum Subs {
+enum Paywall {
 
-  static let core = SubsCraftCore.Instance(
+  static let core = PaywallCraftCore.Instance(
     config: .init(
-      subs: .init(
+      paywall: .init(
         apiKey: "appl_PrQxhLfrujRwauAlGngBUArKhIK",
         offering: "com.appstea.proto.first",
         isDebug: isDebug,
@@ -40,20 +40,20 @@ enum Subs {
       ),
       ui: .init(
         permissions: .custom(),
-        subscription: .custom(),
-        banner: .custom()
+        paywallcription: .custom(),
+        upsell: .custom()
       )
     )
   )
 
 }
 
-// MARK: - Banner.Custom
+// MARK: - Upsell.Custom
 
-fileprivate extension Config.UI.Banner {
+fileprivate extension Config.UI.Upsell {
 
   static func custom() -> Self? {
-    var `default` = Config.UI.Banner.Default()
+    var `default` = Config.UI.Upsell.Default()
     `default`.title = "TexT"
     return Self(default: `default`)
     // return nil
@@ -74,9 +74,9 @@ fileprivate extension Config.UI.Permissions {
 
 }
 
-// MARK: - Subscription.Custom
+// MARK: - Paywallcription.Custom
 
-fileprivate extension Config.UI.Subscription {
+fileprivate extension Config.UI.Paywallcription {
 
   static func custom() -> Self? {
     var result = Self()
@@ -99,7 +99,7 @@ import Cascade
 final class AppDelegate: Cascade.AppDelegate {
 
   @objc
-  override func targets() -> [UIApplicationDelegate] {[ Subs.core ]}
+  override func targets() -> [UIApplicationDelegate] {[ Paywall.core ]}
 
   // ...
 
@@ -117,7 +117,7 @@ import Cascade
 final class AppDelegate: Cascade.AppDelegate {
 
   @objc
-  override func targets() -> [UIApplicationDelegate] {[ Subs.core ]}
+  override func targets() -> [UIApplicationDelegate] {[ Paywall.core ]}
 
   override func application(_ application: UIApplication,
                             configurationForConnecting connectingSceneSession: UISceneSession,
@@ -139,7 +139,7 @@ import Cascade
 final class SceneDelegate: Cascade.SceneDelegate & UIWindowSceneDelegate {
 
   @objc
-  override func targets() -> [UISceneDelegate] {[ Subs.core.scene ]}
+  override func targets() -> [UISceneDelegate] {[ Paywall.core.scene ]}
 
   var window: UIWindow?
 
@@ -154,19 +154,19 @@ final class SceneDelegate: Cascade.SceneDelegate & UIWindowSceneDelegate {
 }
 ```
 
-* Banner integration:
+* Upsell integration:
 ```
-import SubsCraftCore
+import PaywallCraftCore
 
 class ViewController: UIViewController {
 
-  private lazy var bannerView = Subs.core.banner(source: .bottomUpsell, intent: .normal, presenter: self)
+  private lazy var upsellView = Paywall.core.upsell(source: .bottomUpsell, intent: .normal, presenter: self)
 
   // MARK: - Lifecycle
 
   override func loadView() {
     super.loadView()
-    view.addSubviews(bannerView)
+    view.addSubviews(upsellView)
   }
 
   override func viewWillTransition(to size: CGSize,
@@ -181,11 +181,11 @@ class ViewController: UIViewController {
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
 
-    // layout banner view
+    // layout upsell view
     // e.g. via PinLayout
     let safeArea = view.pin.safeArea
-    if !Subs.core.isPremium {
-      bannerView.pin.start().end()
+    if !Paywall.core.isPremium {
+      upsellView.pin.start().end()
         .bottom(safeArea.bottom)
         .sizeToFit(.width)
     }
@@ -194,30 +194,30 @@ class ViewController: UIViewController {
 }
 ```
 
-To make subscription screens work as intended (to be shown from banner etc) you need to assign keyWindow to SDK somewhere in code:
+To make paywallcription screens work as intended (to be shown from upsell etc) you need to assign keyWindow to SDK somewhere in code:
 ```
-import SubsCraftCore
+import PaywallCraftCore
 
-Subs.core.keyWindow = window
+Paywall.core.keyWindow = window
 ```
 
 * To show Permissions screen:
 ```
-import SubsCraftCore
+import PaywallCraftCore
 
-await Subs.core.showPermissions(from: window)
+await Paywall.core.showPermissions(from: window)
 ```
 
-* To show Subscription screen:
+* To show Paywallcription screen:
 ```
-import SubsCraftCore
+import PaywallCraftCore
 
-await Subs.core.showSubs(from: window)
+await Paywall.core.showPaywall(from: window)
 ```
 
 * To perform ATT check:
 ```
-import SubsCraftCore
+import PaywallCraftCore
 
-await Subs.core.checkATT()
+await Paywall.core.checkATT()
 ```
