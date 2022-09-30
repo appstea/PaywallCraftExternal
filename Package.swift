@@ -4,23 +4,23 @@
 import PackageDescription
 
 let package = Package(
-    name: "SubsCraft",
+    name: "PaywallCraft",
     defaultLocalization: "en",
     platforms: [
       .iOS(.v13),
     ],
     products: [
         .library(
-            name: "SubsCraftCore",
-            targets: ["SubsCraftCore"]
+            name: "PaywallCraftCore",
+            targets: ["PaywallCraftCore"]
         ),
         .library(
-            name: "SubsCraftResources",
-            targets: ["SubsCraftResources"]
+            name: "PaywallCraftResources",
+            targets: ["PaywallCraftResources"]
         ),
         .library(
-            name: "SubsCraftUI",
-            targets: ["SubsCraftUI"]
+            name: "PaywallCraftUI",
+            targets: ["PaywallCraftUI"]
         ),
     ],
     dependencies: [
@@ -44,10 +44,10 @@ let package = Package(
     targets: [
 
         .target(
-            name: "SubsCraftCore",
+            name: "PaywallCraftCore",
             dependencies: [
-              "SubsCraftUI",
-              "SubsCraftResources",
+              "PaywallCraftUI",
+              "PaywallCraftResources",
 
               .product(name: "Cascade", package: "Cascade"),
               .product(name: "NotificationCraft", package: "NotificationCraft"),
@@ -76,7 +76,7 @@ let package = Package(
 
 
         .target(
-            name: "SubsCraftResources",
+            name: "PaywallCraftResources",
             dependencies: [
 
             ],
@@ -87,9 +87,9 @@ let package = Package(
 
 
         .target(
-            name: "SubsCraftUI",
+            name: "PaywallCraftUI",
             dependencies: [
-              "SubsCraftResources",
+              "PaywallCraftResources",
 
               .product(name: "UIBase", package: "UIBase"),
               .product(name: "UICommon", package: "UICommon"),
