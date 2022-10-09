@@ -50,7 +50,7 @@
 "paywall.price_slash_period"           = "%@/%@";
 
 /* Try Free and Subscribe */
-"paywall.try_free_and_paywallcribe"    = "Essayez et abonnez-vous";
+"paywall.try_free_and_subscribe"       = "Essayez et abonnez-vous";
 
 /* That’s just $3.33/month */
 "paywall.two_buttons.info_just"        = "Ça ne coûte que %@";
@@ -84,4 +84,4 @@
 "start.feature.first"                  = "Emplacement, afin que l'application puisse garantir que vous obtenez les données météorologiques locales les plus précises";
 "start.feature.second"                 = "Notifications, pour vous tenir au courant des changements météorologiques importants, dangereux et perturbateurs";
 "start.subtitle"                       = "Sera possible si vous accordez l'accès à :";
-"start.title"                          = "Meilleure expérience météo";
+"start.title"                          = "Meilleure expérience";
