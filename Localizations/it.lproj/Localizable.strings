@@ -50,7 +50,7 @@
 "paywall.price_slash_period"           = "";
 
 /* Try Free and Subscribe */
-"paywall.try_free_and_paywallcribe"    = "";
+"paywall.try_free_and_subscribe"       = "";
 
 /* That’s just $3.33/month */
 "paywall.two_buttons.info_just"        = "";

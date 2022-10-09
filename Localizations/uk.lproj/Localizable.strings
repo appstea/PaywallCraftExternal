@@ -50,7 +50,7 @@
 "paywall.price_slash_period"           = "%@/на %@";
 
 /* Try Free and Subscribe */
-"paywall.try_free_and_paywallcribe"    = "Спробуйте безкоштовно та підпишіться";
+"paywall.try_free_and_subscribe"       = "Спробуйте безкоштовно та підпишіться";
 
 /* That’s just $3.33/month */
 "paywall.two_buttons.info_just"        = "Вартість – лише %@";
@@ -84,4 +84,4 @@
 "start.feature.first"                  = "До геолокації, щоб додаток міг показувати місцеву погоду";
 "start.feature.second"                 = "До нотифікацій, щоб отримувати прогноз і попередження";
 "start.subtitle"                       = "Буде можливий, якщо надати доступ:";
-"start.title"                          = "Кращий погодний досвід";
+"start.title"                          = "Кращий досвід";

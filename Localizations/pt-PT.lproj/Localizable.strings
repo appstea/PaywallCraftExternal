@@ -50,7 +50,7 @@
 "paywall.price_slash_period"           = "%@/%@";
 
 /* Try Free and Subscribe */
-"paywall.try_free_and_paywallcribe"    = "Experimente e subscreva";
+"paywall.try_free_and_subscribe"       = "Experimente e subscreva";
 
 /* That’s just $3.33/month */
 "paywall.two_buttons.info_just"        = "Por apenas %@";
@@ -84,4 +84,4 @@
 "start.feature.first"                  = "Localização, para que a aplicação possa garantir que recebe os dados meteorológicos locais mais precisos";
 "start.feature.second"                 = "Notificações, para estar ao corrente de alterações meteorológicas importantes, perigosas e perturbadoras";
 "start.subtitle"                       = "Será possível se permitir o acesso a:";
-"start.title"                          = "Melhor experiência meteorológica";
+"start.title"                          = "Melhor experiência";

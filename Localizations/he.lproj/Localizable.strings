@@ -50,7 +50,7 @@
 "paywall.price_slash_period"           = "%@/%@";
 
 /* Try Free and Subscribe */
-"paywall.try_free_and_paywallcribe"    = "נסה/י בחינם והירשם/י";
+"paywall.try_free_and_subscribe"       = "נסה/י בחינם והירשם/י";
 
 /* That’s just $3.33/month */
 "paywall.two_buttons.info_just"        = "זה אומר בסה\"כ %@";
