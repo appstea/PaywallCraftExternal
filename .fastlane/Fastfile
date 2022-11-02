@@ -12,9 +12,9 @@ import_from_git(
 lane :update_l10n do
   system('babelish csv2strings')
 
-  system('rm -rf ../Sources/SubsCraftResources/Resources/Localizations')
-  system('mkdir ../Sources/SubsCraftResources/Resources/Localizations')
-  system('rsync -av --exclude=\'InfoPlist.strings\' ../Localizations/ ../Sources/SubsCraftResources/Resources/Localizations')
+  system('rm -rf ../Sources/PaywallCraftResources/Resources/Localizations')
+  system('mkdir ../Sources/PaywallCraftResources/Resources/Localizations')
+  system('rsync -av --exclude=\'InfoPlist.strings\' ../Localizations/ ../Sources/PaywallCraftResources/Resources/Localizations')
 
   codegen()
 end
