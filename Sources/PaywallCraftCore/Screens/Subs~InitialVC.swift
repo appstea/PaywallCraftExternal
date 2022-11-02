@@ -51,7 +51,7 @@ extension Paywall {
     public var text = L10n.Paywall.TwoButtons.text
     public var textColor = Color.Main.text.color
 
-    public var trial = L10n.Paywall.tryFreeAndPaywallcribe
+    public var trial = L10n.Paywall.tryFreeAndSubscribe
     public var trialTextColor = UIColor.white
     public var trialBgColor = Color.Paywall.continue.color
 

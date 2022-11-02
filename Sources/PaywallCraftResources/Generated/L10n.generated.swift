@@ -81,66 +81,6 @@ public enum L10n {
     public static let title = L10n.tr("Localizable", "no_mail_app.title")
   }
 
-  public enum Settings {
-    public enum ContactUs {
-      /// We would love to hear from you
-      public static let subtitle = L10n.tr("Localizable", "settings.contact_us.subtitle")
-      /// Contact Us
-      public static let title = L10n.tr("Localizable", "settings.contact_us.title")
-    }
-    public enum HelpSupport {
-      public enum Section {
-        /// Help & Support
-        public static let title = L10n.tr("Localizable", "settings.help_support.section.title")
-      }
-    }
-    public enum Privacy {
-      /// And other legal texts
-      public static let subtitle = L10n.tr("Localizable", "settings.privacy.subtitle")
-      /// Privacy Policy
-      public static let title = L10n.tr("Localizable", "settings.privacy.title")
-    }
-    public enum Rateapp {
-      /// Rate the App
-      public static let title = L10n.tr("Localizable", "settings.rateapp.title")
-    }
-    public enum Restore {
-      /// We’ll find stuff you have already bought
-      public static let subtitle = L10n.tr("Localizable", "settings.restore.subtitle")
-      /// Restore Purchases
-      public static let title = L10n.tr("Localizable", "settings.restore.title")
-    }
-    public enum RestoreFail {
-      /// Sorry, it looks like you don't have any purchases 
-      public static let subtitle = L10n.tr("Localizable", "settings.restore_fail.subtitle")
-    }
-    public enum Share {
-      /// Share via your favorite messenger
-      public static let subtitle = L10n.tr("Localizable", "settings.share.subtitle")
-    }
-    public enum ShareApp {
-      /// Share App
-      public static let title = L10n.tr("Localizable", "settings.share_app.title")
-    }
-  }
-
-  public enum Start {
-    /// Will be possible if you grant access to:
-    public static let subtitle = L10n.tr("Localizable", "start.subtitle")
-    /// Best weather experience
-    public static let title = L10n.tr("Localizable", "start.title")
-    public enum Button {
-      /// Ok, I understand
-      public static let `continue` = L10n.tr("Localizable", "start.button.continue")
-    }
-    public enum Feature {
-      /// Location, so that the app can ensure that you get the most accurate local weather data
-      public static let first = L10n.tr("Localizable", "start.feature.first")
-      /// Notifications, to be aware of important, dangerous and disrupting weather changes
-      public static let second = L10n.tr("Localizable", "start.feature.second")
-    }
-  }
-
   public enum Paywall {
     /// %@ per %@
     public static func pricePerPeriod(_ p1: Any, _ p2: Any) -> String {
@@ -150,8 +90,8 @@ public enum L10n {
     public static func priceSlashPeriod(_ p1: Any, _ p2: Any) -> String {
       return L10n.tr("Localizable", "paywall.price_slash_period", String(describing: p1), String(describing: p2))
     }
-    /// Try Free and Paywallcribe
-    public static let tryFreeAndPaywallcribe = L10n.tr("Localizable", "paywall.try_free_and_paywallcribe")
+    /// Try Free and Subscribe
+    public static let tryFreeAndSubscribe = L10n.tr("Localizable", "paywall.try_free_and_subscribe")
     public enum AdditionalOffer {
       /// Here is an offer for you:
       public static let subtitle = L10n.tr("Localizable", "paywall.additional_offer.subtitle")
@@ -173,7 +113,7 @@ public enum L10n {
       public static let terms = L10n.tr("Localizable", "paywall.button.terms")
     }
     public enum OneButton {
-      /// paywallcribe for %@ per %@
+      /// subscribe for %@ per %@
       public static func price(_ p1: Any, _ p2: Any) -> String {
         return L10n.tr("Localizable", "paywall.one_button.price", String(describing: p1), String(describing: p2))
       }
@@ -233,6 +173,66 @@ public enum L10n {
       }
       /// Full Access
       public static let title = L10n.tr("Localizable", "paywall.two_buttons.title")
+    }
+  }
+
+  public enum Settings {
+    public enum ContactUs {
+      /// We would love to hear from you
+      public static let subtitle = L10n.tr("Localizable", "settings.contact_us.subtitle")
+      /// Contact Us
+      public static let title = L10n.tr("Localizable", "settings.contact_us.title")
+    }
+    public enum HelpSupport {
+      public enum Section {
+        /// Help & Support
+        public static let title = L10n.tr("Localizable", "settings.help_support.section.title")
+      }
+    }
+    public enum Privacy {
+      /// And other legal texts
+      public static let subtitle = L10n.tr("Localizable", "settings.privacy.subtitle")
+      /// Privacy Policy
+      public static let title = L10n.tr("Localizable", "settings.privacy.title")
+    }
+    public enum Rateapp {
+      /// Rate the App
+      public static let title = L10n.tr("Localizable", "settings.rateapp.title")
+    }
+    public enum Restore {
+      /// We’ll find stuff you have already bought
+      public static let subtitle = L10n.tr("Localizable", "settings.restore.subtitle")
+      /// Restore Purchases
+      public static let title = L10n.tr("Localizable", "settings.restore.title")
+    }
+    public enum RestoreFail {
+      /// Sorry, it looks like you don't have any purchases 
+      public static let subtitle = L10n.tr("Localizable", "settings.restore_fail.subtitle")
+    }
+    public enum Share {
+      /// Share via your favorite messenger
+      public static let subtitle = L10n.tr("Localizable", "settings.share.subtitle")
+    }
+    public enum ShareApp {
+      /// Share App
+      public static let title = L10n.tr("Localizable", "settings.share_app.title")
+    }
+  }
+
+  public enum Start {
+    /// Will be possible if you grant access to:
+    public static let subtitle = L10n.tr("Localizable", "start.subtitle")
+    /// Best weather experience
+    public static let title = L10n.tr("Localizable", "start.title")
+    public enum Button {
+      /// Ok, I understand
+      public static let `continue` = L10n.tr("Localizable", "start.button.continue")
+    }
+    public enum Feature {
+      /// Location, so that the app can ensure that you get the most accurate local weather data
+      public static let first = L10n.tr("Localizable", "start.feature.first")
+      /// Notifications, to be aware of important, dangerous and disrupting weather changes
+      public static let second = L10n.tr("Localizable", "start.feature.second")
     }
   }
 }

@@ -1,16 +1,16 @@
 strings:
-  inputs: "../PaywallCraft/Sources/PaywallCraftResources/Resources/Localizations/en.lproj"
+  inputs: "../Sources/PaywallCraftResources/Resources/Localizations/en.lproj"
   outputs:
     - templatePath: module.strings.stencil
-      output: ../PaywallCraft/Sources/PaywallCraftResources/Generated/L10n.generated.swift
+      output: ../Sources/PaywallCraftResources/Generated/L10n.generated.swift
       params:
         enumName: L10n
         publicAccess: true
 xcassets:
-  inputs: "../PaywallCraft/Sources/PaywallCraftResources/Resources/Assets.xcassets"
+  inputs: "../Sources/PaywallCraftResources/Resources/Assets.xcassets"
   outputs:
     - templatePath: module.assets.stencil
-      output: ../PaywallCraft/Sources/PaywallCraftResources/Generated/Assets.generated.swift
+      output: ../Sources/PaywallCraftResources/Generated/Assets.generated.swift
       params:
         enumName: Assets
         publicAccess: true

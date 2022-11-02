@@ -24,10 +24,6 @@ public typealias Color = Assets.Colors
 public enum Assets {
   public enum Colors {
 
-    public enum Upsell {
-      public static let background = ColorAsset(name: "Colors/Upsell/background")
-      public static let cta = ColorAsset(name: "Colors/Upsell/cta")
-    }
     public enum DotLabel {
       public static let dot = ColorAsset(name: "Colors/DotLabel/dot")
     }
@@ -49,21 +45,25 @@ public enum Assets {
       public static let price = ColorAsset(name: "Colors/Paywall/price")
       public static let title = ColorAsset(name: "Colors/Paywall/title")
     }
+    public enum Upsell {
+      public static let background = ColorAsset(name: "Colors/Upsell/background")
+      public static let cta = ColorAsset(name: "Colors/Upsell/cta")
+    }
   }
   public enum Images {
 
-    public enum Upsell {
-      public static let `default` = ImageAsset(name: "Images/Upsell/default")
-      public static let icon = ImageAsset(name: "Images/Upsell/icon")
-    }
-    public enum Permissions {
-      public static let image = ImageAsset(name: "Images/Permissions/image")
-    }
     public enum Paywall {
       public static let close = ImageAsset(name: "Images/Paywall/close")
       public static let cross = ImageAsset(name: "Images/Paywall/cross")
       public static let image = ImageAsset(name: "Images/Paywall/image")
       public static let star = ImageAsset(name: "Images/Paywall/star")
+    }
+    public enum Permissions {
+      public static let image = ImageAsset(name: "Images/Permissions/image")
+    }
+    public enum Upsell {
+      public static let `default` = ImageAsset(name: "Images/Upsell/default")
+      public static let icon = ImageAsset(name: "Images/Upsell/icon")
     }
   }
 }
