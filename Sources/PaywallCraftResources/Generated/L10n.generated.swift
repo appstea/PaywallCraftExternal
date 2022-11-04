@@ -176,6 +176,43 @@ public enum L10n {
     }
   }
 
+  public enum Permissions {
+    /// Will be possible if you grant access to:
+    public static let subtitle = L10n.tr("Localizable", "permissions.subtitle")
+    /// Best app experience
+    public static let title = L10n.tr("Localizable", "permissions.title")
+    public enum Button {
+      /// Ok, I understand
+      public static let `continue` = L10n.tr("Localizable", "permissions.button.continue")
+    }
+    public enum Feature {
+      public enum Location {
+        /// Location, so that the app can ensure that you get the most accurate local weather data
+        public static let description = L10n.tr("Localizable", "permissions.feature.location.description")
+        /// Location Services
+        public static let title = L10n.tr("Localizable", "permissions.feature.location.title")
+      }
+      public enum MotionData {
+        /// Motion & Fitness, short usage description
+        public static let description = L10n.tr("Localizable", "permissions.feature.motion_data.description")
+        /// Motion & Fitness
+        public static let title = L10n.tr("Localizable", "permissions.feature.motion_data.title")
+      }
+      public enum Notifications {
+        /// Notifications, to be aware of important, dangerous and disrupting weather changes
+        public static let description = L10n.tr("Localizable", "permissions.feature.notifications.description")
+        /// Notifications
+        public static let title = L10n.tr("Localizable", "permissions.feature.notifications.title")
+      }
+      public enum Photos {
+        /// Photos, short usage description
+        public static let description = L10n.tr("Localizable", "permissions.feature.photos.description")
+        /// Photos
+        public static let title = L10n.tr("Localizable", "permissions.feature.photos.title")
+      }
+    }
+  }
+
   public enum Settings {
     public enum ContactUs {
       /// We would love to hear from you
@@ -216,23 +253,6 @@ public enum L10n {
     public enum ShareApp {
       /// Share App
       public static let title = L10n.tr("Localizable", "settings.share_app.title")
-    }
-  }
-
-  public enum Start {
-    /// Will be possible if you grant access to:
-    public static let subtitle = L10n.tr("Localizable", "start.subtitle")
-    /// Best weather experience
-    public static let title = L10n.tr("Localizable", "start.title")
-    public enum Button {
-      /// Ok, I understand
-      public static let `continue` = L10n.tr("Localizable", "start.button.continue")
-    }
-    public enum Feature {
-      /// Location, so that the app can ensure that you get the most accurate local weather data
-      public static let first = L10n.tr("Localizable", "start.feature.first")
-      /// Notifications, to be aware of important, dangerous and disrupting weather changes
-      public static let second = L10n.tr("Localizable", "start.feature.second")
     }
   }
 }

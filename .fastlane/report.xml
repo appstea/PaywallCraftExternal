@@ -5,12 +5,17 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000388">
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000398">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: import_from_git" time="2.351899">
+      <testcase classname="fastlane.lanes" name="1: import_from_git" time="2.12493">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="2: Switch to codegen lane" time="0.000491">
         
       </testcase>
     
