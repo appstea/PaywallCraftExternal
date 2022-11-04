@@ -51,13 +51,55 @@ extension Permissions {
     public var ctaTextColor = UIColor.white
     public var ctaBgColor = Color.Onboarding.continue.color
 
-    public var title = L10n.Start.title
-    public var subtitle = L10n.Start.subtitle
-    public var features = [
-      L10n.Start.Feature.first,
-      L10n.Start.Feature.second,
+    public var title = L10n.Permissions.title
+    public var subtitle = L10n.Permissions.subtitle
+    
+    public struct Feature: Equatable {
+      public enum FeatureType: Equatable {
+        case notifications
+        case location
+        case photos
+        case motion
+      }
+      public let type: FeatureType
+      public let icon: UIImage
+      public let title: String
+      public let description: String
+      
+      enum Defaults {
+        static let notifications = Feature(
+          type: .notifications,
+          icon: UIImage(),
+          title: L10n.Permissions.Feature.Notifications.title,
+          description: L10n.Permissions.Feature.Notifications.description
+        )
+        static let location = Feature(
+          type: .location,
+          icon: UIImage(),
+          title: L10n.Permissions.Feature.Location.title,
+          description: L10n.Permissions.Feature.Location.description
+        )
+        static let motion = Feature(
+          type: .motion,
+          icon: UIImage(),
+          title: L10n.Permissions.Feature.MotionData.title,
+          description: L10n.Permissions.Feature.MotionData.description
+        )
+        static let photos = Feature(
+          type: .photos,
+          icon: UIImage(),
+          title: L10n.Permissions.Feature.Photos.title,
+          description: L10n.Permissions.Feature.Photos.description
+        )
+      }
+    }
+    public var features: [Feature] = [
+      Feature.Defaults.notifications,
+      Feature.Defaults.location,
+      Feature.Defaults.photos,
+      Feature.Defaults.motion,
     ]
-    public var cta = L10n.Start.Button.continue
+    public var cta = L10n.Permissions.Button.continue
 
     public init() {}
 
@@ -71,19 +113,19 @@ extension Permissions {
       view.subtitleLabel.text = subtitle
       view.subtitleLabel.textColor = textColor
 
-      zip(features, [view.dotLabel_0, view.dotLabel_1])
-        .forEach { text, label in
-          label.dotColor = dotColor
-          label.text = text
-            .withFont(DynamicFont.regular(of: isPad ? 24 : 16)
-              .maxSize(to: isPad ? 40 : 28)
-              .asFont())
-            .withTextColor(Color.Main.text.color)
-            .withParagraphStyle(NSMutableParagraphStyle {
-              $0.lineSpacing = 5
-              $0.alignment = isRTL ? .right : .left
-            })
-        }
+      features.enumerated().forEach { idx, feature in
+        let label = view.dotLabel(idx)
+        label.dotColor = dotColor
+        label.text = feature.title
+          .withFont(DynamicFont.regular(of: isPad ? 24 : 16)
+            .maxSize(to: isPad ? 40 : 28)
+            .asFont())
+          .withTextColor(Color.Main.text.color)
+          .withParagraphStyle(NSMutableParagraphStyle {
+            $0.lineSpacing = 5
+            $0.alignment = isRTL ? .right : .left
+          })
+      }
 
       view.ctaButton.setTitle(cta, for: .normal)
       view.ctaButton.setTitleColor(ctaTextColor, for: .normal)
@@ -145,8 +187,15 @@ extension Permissions {
         $0.dotPadding = Const.dotSpacing
       }
     }
-    fileprivate let dotLabel_0 = dotLabelInstance()
-    fileprivate let dotLabel_1 = dotLabelInstance()
+    private var dotLabelsPool = [Int: UICommon.DotLabel]()
+    fileprivate func dotLabel(_ idx: Int) -> UICommon.DotLabel {
+      let result = dotLabelsPool[idx] ?? UICommon.DotLabel {
+        $0.dotSize = Const.dotSize
+        $0.dotPadding = Const.dotSpacing
+      }
+      dotLabelsPool[idx] = result
+      return result
+    }
 
     fileprivate let ctaButton = UIBase.Button {
       $0.layer.cornerRadius = 12
@@ -208,7 +257,6 @@ extension Permissions {
     //        view.setNeedsLayout()
     //    }
 
-
   }
 }
 
@@ -227,24 +275,42 @@ fileprivate extension Permissions.ViewController {
       isPad ? 20.floating : 20.fixed
       subtitleLabel.vComponent.maxHeight(30.ui(.paywall))
       isPad ? 16.floating : 16.fixed
-//        dotLabel_0.vComponent.maxHeight(120.ui(.paywall))
-//        10.floating
-      if isPad {
-        dotLabel_1.vComponent.maxHeight(120.ui(.paywall))
-          .width(.fixed(Const.buttonSize.width))
-          .alignment(.center)
-      }
-      else {
-        dotLabel_1.vComponent.maxHeight(120.ui(.paywall))
-      }
+
+      dotLabels()
+      
       isPad ? 160.floating : 20.floating
       ctaButton.vComponent
         .size(Const.buttonSize)
         .alignment(.center)
       60.fixed
     }
+    
+    func dotLabels() -> [VStackViewItemConvertible] {
+      dotLabelsPool.keys.sorted().enumerated().flatMap { idx, key -> [VStackViewItemConvertible] in
+        let label = dotLabel(key)
+        var result = [any VStackViewItemConvertible]()
+        if isPad {
+          result.append(
+            label.vComponent.maxHeight(120.ui(.paywall))
+              .width(.fixed(Const.buttonSize.width))
+              .alignment(.center)
+          )
+        }
+        else {
+          result.append(
+            label.vComponent.maxHeight(120.ui(.paywall))
+          )
+        }
+        
+        let isLast = idx == dotLabelsPool.count - 1
+        if !isLast {
+          result.append(10.floating)
+        }
+        return result
+      }
+    }
+    
   }
-
 }
 
 // MARK: - Actions
