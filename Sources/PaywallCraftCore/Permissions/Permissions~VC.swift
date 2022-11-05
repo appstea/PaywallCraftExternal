@@ -47,21 +47,27 @@ extension Permissions {
     : CGSize(width: 310.ui(.paywall), height: 279.ui(.paywall))
 
     public var textColor = Color.Main.text.color
-    public var dotColor = Color.DotLabel.dot.color
+//    public var dotColor = Color.DotLabel.dot.color
     public var ctaTextColor = UIColor.white
     public var ctaBgColor = Color.Onboarding.continue.color
 
     public var title = L10n.Permissions.title
     public var subtitle = L10n.Permissions.subtitle
     
-    public struct Feature: Equatable {
-      public enum FeatureType: Equatable {
+    public struct Permission: Equatable {
+      public enum PermissionType: Equatable {
         case notifications
-        case location
+        case locationAlways
+        case locationWhenInUse
         case photos
         case motion
       }
-      public var type: FeatureType
+      public enum Status: Equatable {
+        case authorized
+        case denied
+        case notDetermined
+      }
+      public var type: PermissionType
       public var icon: UIImage
       public var title: String
       public var description: String
@@ -69,15 +75,15 @@ extension Permissions {
       public var selectionColor: UIColor
       
     }
-    public var features: [Feature] = [
-      Feature.Defaults.notifications,
-      Feature.Defaults.location,
-      Feature.Defaults.photos,
-      Feature.Defaults.motion,
+    public var permissions: [Permission] = [
+      Permission.Defaults.notifications,
+      Permission.Defaults.locationAlways,
+      Permission.Defaults.photos,
+      Permission.Defaults.motion,
     ]
     public var cta = L10n.Permissions.Button.continue
     
-    fileprivate var allowedFeatures: Set<Feature.FeatureType> = []
+    fileprivate var allowedPermissions: Set<Permissions.ViewModel.Permission.PermissionType> = []
 
     public init() {}
 
@@ -91,7 +97,7 @@ extension Permissions {
       view.subtitleLabel.text = subtitle
       view.subtitleLabel.textColor = textColor
 
-      features.enumerated().forEach { idx, feature in
+      permissions.enumerated().forEach { idx, feature in
         let label = view.iconLabel(idx)
         let text = feature.title
           .withFont(DynamicFont.regular(of: isPad ? 24 : 16)
@@ -106,7 +112,7 @@ extension Permissions {
         label.apply(data: .init(
           icon: feature.icon,
           color: feature.color,
-          selectionColor: allowedFeatures.contains(feature.type) ? feature.selectionColor : .clear,
+          selectionColor: allowedPermissions.contains(feature.type) ? feature.selectionColor : .clear,
           text: text
         ))
       }
@@ -294,47 +300,27 @@ private extension Permissions.ViewController {
       passContinuation = nil
     }
   }
-
-  // MARK: Reading Permissions
   
   func checkAuthorizedFeaturesPermissions() {
-    Task { @MainActor in
-      for feature in viewModel.features {
-        if await isFeautureAutorized(featureType: feature.type) {
-          viewModel.allowedFeatures.insert(feature.type)
+    Task {
+      let permissions = viewModel.permissions.map(\.type)
+      let fetches = PermissionService.Fetcher(permissions: permissions)
+      for await (permission, status) in fetches {
+        if status == .authorized {
+          viewModel.allowedPermissions.insert(permission)
         }
       }
     }
   }
   
-  func isFeautureAutorized(featureType: Permissions.ViewModel.Feature.FeatureType) async -> Bool {
-    typealias Permission = PermissionService
-    switch featureType {
-    case .notifications:
-      return await Permission.Notifications.shared?.fetchAuthorizationStatus() ?? false
-    default: break
-    }
-    return false
-  }
-  
-  // MARK: Requesting Permissions
-  
+  @MainActor
   func requestPermissions() async {
-    for feature in viewModel.features {
-      await requestPermission(for: feature)
-    }
-  }
-  
-  func requestPermission(for feature: Permissions.ViewModel.Feature) async {
-    typealias Permission = PermissionService
-    switch feature.type {
-    case .notifications:
-      if await Permission.Notifications.shared?.fetchStatusAndRequestIfNeeded() == .allowed {
-        viewModel.allowedFeatures.insert(.notifications)
+    let permissions = viewModel.permissions.map(\.type)
+    let requests = PermissionService.Requester(permissions: permissions)
+    for await (permission, status) in requests {
+      if status == .authorized {
+        viewModel.allowedPermissions.insert(permission)
       }
-    default:
-      try? await Task.sleep(nanoseconds: UInt64(1e9 * Double.random(in: 0.5...3)))
-      viewModel.allowedFeatures.insert(feature.type)
     }
   }
 
@@ -458,10 +444,10 @@ extension IconLabel {
 
 // MARK: - Default Features
 
-public extension Permissions.ViewModel.Feature {
+public extension Permissions.ViewModel.Permission {
   
   enum Defaults {
-    static let notifications = Permissions.ViewModel.Feature(
+    static let notifications = Permissions.ViewModel.Permission(
       type: .notifications,
       icon: PaywallCraftResources.Asset.Permissions.Feature.notifications.image,
       title: L10n.Permissions.Feature.Notifications.title,
@@ -469,15 +455,23 @@ public extension Permissions.ViewModel.Feature {
       color: PaywallCraftResources.Color.Permissions.Feature.notifications.color,
       selectionColor: PaywallCraftResources.Color.Permissions.selected.color
     )
-    static let location = Permissions.ViewModel.Feature(
-      type: .location,
+    static let locationAlways = Permissions.ViewModel.Permission(
+      type: .locationAlways,
       icon: PaywallCraftResources.Asset.Permissions.Feature.location.image,
       title: L10n.Permissions.Feature.Location.title,
       description: L10n.Permissions.Feature.Location.description,
       color: PaywallCraftResources.Color.Permissions.Feature.location.color,
       selectionColor: PaywallCraftResources.Color.Permissions.selected.color
     )
-    static let motion = Permissions.ViewModel.Feature(
+    static let locationWhenInUse = Permissions.ViewModel.Permission(
+      type: .locationWhenInUse,
+      icon: PaywallCraftResources.Asset.Permissions.Feature.location.image,
+      title: L10n.Permissions.Feature.Location.title,
+      description: L10n.Permissions.Feature.Location.description,
+      color: PaywallCraftResources.Color.Permissions.Feature.location.color,
+      selectionColor: PaywallCraftResources.Color.Permissions.selected.color
+    )
+    static let motion = Permissions.ViewModel.Permission(
       type: .motion,
       icon: PaywallCraftResources.Asset.Permissions.Feature.motion.image,
       title: L10n.Permissions.Feature.MotionData.title,
@@ -485,7 +479,7 @@ public extension Permissions.ViewModel.Feature {
       color: PaywallCraftResources.Color.Permissions.Feature.motion.color,
       selectionColor: PaywallCraftResources.Color.Permissions.selected.color
     )
-    static let photos = Permissions.ViewModel.Feature(
+    static let photos = Permissions.ViewModel.Permission(
       type: .photos,
       icon: PaywallCraftResources.Asset.Permissions.Feature.photos.image,
       title: L10n.Permissions.Feature.Photos.title,

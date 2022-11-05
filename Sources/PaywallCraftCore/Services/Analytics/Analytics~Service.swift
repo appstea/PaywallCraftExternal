@@ -56,12 +56,14 @@ extension Analytics {
     private var didSendStartEventAtCurrentSession = false
 
     private let transmitter: Transmitter
+    private let config: Config
 
     // MARK: - Init
 
     static var shared: Analytics.Service?
-    init(config: Config.Analytics) {
-      transmitter = Transmitter(provider: Analytics.LoggersProvider(config: config))
+    init(config: Config) {
+      self.config = config
+      transmitter = Transmitter(provider: Analytics.LoggersProvider(config: config.analytics))
     }
 
     // MARK: - UIApplicationDelegate
@@ -76,10 +78,21 @@ extension Analytics {
     private func didBecomeActive() {
       if Stored.didPassPrepermission {
         Task { [weak self] in
-          let notifications = PermissionService.Notifications.shared
-          if let status = await notifications?.fetchStatusAndRequestIfNeeded() {
-            self?.sendEvent(.sessionDetails(notificationStatus: status))
+          guard let self else { return }
+          
+          let permissions = (self.config.ui.permissions ?? .init()).permissions.map(\.type)
+          var details = Analytics.Event.Permissions()
+          let fetcher = PermissionService.Fetcher(permissions: permissions)
+          for await (permission, status) in fetcher {
+            switch permission {
+            case .motion: details.motion = status
+            case .notifications: details.notifications = status
+            case .locationWhenInUse,
+                .locationAlways: details.location = status
+            case .photos: details.photos = status
+            }
           }
+          self.sendEvent(.sessionDetails(details))
         }
       }
     }

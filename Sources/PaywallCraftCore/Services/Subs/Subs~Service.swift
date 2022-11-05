@@ -134,19 +134,19 @@ extension Paywall {
     func updateAttribute(_ attribute: Attribute) {
       let purchases = Purchases.shared
       switch attribute {
-      case .apns(let data): purchases.setPushToken(data)
-      case .fcm(let token): purchases.setAttributes(["$fcmTokens": token])
-      case .idfa(let id): purchases.setAttributes(["$idfa": id])
-      case .idfv(let id): purchases.setAttributes(["$idfv": id])
-      case .fbAnonId(let id): purchases.setFBAnonymousID(id)
+      case .apns(let data): purchases.attribution.setPushToken(data)
+      case .fcm(let token): purchases.attribution.setAttributes(["$fcmTokens": token])
+      case .idfa(let id): purchases.attribution.setAttributes(["$idfa": id])
+      case .idfv(let id): purchases.attribution.setAttributes(["$idfv": id])
+      case .fbAnonId(let id): purchases.attribution.setFBAnonymousID(id)
       case .branch(let attribute):
         switch attribute {
-        case .mediaSource(let source): purchases.setMediaSource(source)
-        case .campaign(let campaign): purchases.setCampaign(campaign)
-        case .adGroup(let group): purchases.setAdGroup(group)
-        case .ad(let id): purchases.setAd(id)
-        case .keyword(let keyword): purchases.setKeyword(keyword)
-        case .creative(let id): purchases.setCreative(id)
+        case .mediaSource(let source): purchases.attribution.setMediaSource(source)
+        case .campaign(let campaign): purchases.attribution.setCampaign(campaign)
+        case .adGroup(let group): purchases.attribution.setAdGroup(group)
+        case .ad(let id): purchases.attribution.setAd(id)
+        case .keyword(let keyword): purchases.attribution.setKeyword(keyword)
+        case .creative(let id): purchases.attribution.setCreative(id)
         }
       }
     }
