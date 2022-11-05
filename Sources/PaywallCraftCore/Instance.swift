@@ -30,7 +30,7 @@ final public class Instance: Cascade.AppDelegate {
     UIService.shared,
     BranchService.shared,
     Paywall.Service.shared,
-    NotificationsService.shared,
+    PermissionService.Notifications.shared,
   ]
 
   public private(set) lazy var scene: Scene = {

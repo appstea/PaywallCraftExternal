@@ -42,9 +42,9 @@ extension Permissions {
       Color.Onboarding.background.color.withAlphaComponent(0),
     ]
     public var image = Asset.Permissions.image.image
-    public var imageSize = (isPad && isPortrait)
-    ? CGSize(width: 525.ui(.paywall), height: 263.ui(.paywall))
-    : CGSize(width: 375.ui(.paywall), height: 188.ui(.paywall))
+    public var imageSize = (isPad && isLandscape)
+    ? CGSize(width: 248.ui(.paywall), height: 223.ui(.paywall))
+    : CGSize(width: 310.ui(.paywall), height: 279.ui(.paywall))
 
     public var textColor = Color.Main.text.color
     public var dotColor = Color.DotLabel.dot.color
@@ -61,37 +61,13 @@ extension Permissions {
         case photos
         case motion
       }
-      public let type: FeatureType
-      public let icon: UIImage
-      public let title: String
-      public let description: String
+      public var type: FeatureType
+      public var icon: UIImage
+      public var title: String
+      public var description: String
+      public var color: UIColor
+      public var selectionColor: UIColor
       
-      enum Defaults {
-        static let notifications = Feature(
-          type: .notifications,
-          icon: UIImage(),
-          title: L10n.Permissions.Feature.Notifications.title,
-          description: L10n.Permissions.Feature.Notifications.description
-        )
-        static let location = Feature(
-          type: .location,
-          icon: UIImage(),
-          title: L10n.Permissions.Feature.Location.title,
-          description: L10n.Permissions.Feature.Location.description
-        )
-        static let motion = Feature(
-          type: .motion,
-          icon: UIImage(),
-          title: L10n.Permissions.Feature.MotionData.title,
-          description: L10n.Permissions.Feature.MotionData.description
-        )
-        static let photos = Feature(
-          type: .photos,
-          icon: UIImage(),
-          title: L10n.Permissions.Feature.Photos.title,
-          description: L10n.Permissions.Feature.Photos.description
-        )
-      }
     }
     public var features: [Feature] = [
       Feature.Defaults.notifications,
@@ -100,6 +76,8 @@ extension Permissions {
       Feature.Defaults.motion,
     ]
     public var cta = L10n.Permissions.Button.continue
+    
+    fileprivate var allowedFeatures: Set<Feature.FeatureType> = []
 
     public init() {}
 
@@ -114,9 +92,8 @@ extension Permissions {
       view.subtitleLabel.textColor = textColor
 
       features.enumerated().forEach { idx, feature in
-        let label = view.dotLabel(idx)
-        label.dotColor = dotColor
-        label.text = feature.title
+        let label = view.iconLabel(idx)
+        let text = feature.title
           .withFont(DynamicFont.regular(of: isPad ? 24 : 16)
             .maxSize(to: isPad ? 40 : 28)
             .asFont())
@@ -125,6 +102,13 @@ extension Permissions {
             $0.lineSpacing = 5
             $0.alignment = isRTL ? .right : .left
           })
+        
+        label.apply(data: .init(
+          icon: feature.icon,
+          color: feature.color,
+          selectionColor: allowedFeatures.contains(feature.type) ? feature.selectionColor : .clear,
+          text: text
+        ))
       }
 
       view.ctaButton.setTitle(cta, for: .normal)
@@ -139,8 +123,6 @@ extension Permissions {
 
     private enum Const {
       static let buttonSize = CGSize(width: isPad ? 400.ui(.paywall) : 285.ui(.paywall), height: isPad ? 70 : 50)
-      static let dotSize: CGFloat = (isPad ? 18 : 13).ui(.paywall)
-      static let dotSpacing = 10.ui(.paywall)
       static var contentWidth: CGFloat { (isPad && isLandscape) ? 0.6 : 0.8 }
     }
 
@@ -181,19 +163,10 @@ extension Permissions {
       $0.adjustsFontSizeToFitWidth = true
       $0.minimumScaleFactor = 0.8
     }
-    private static func dotLabelInstance() -> UICommon.DotLabel {
-      UICommon.DotLabel {
-        $0.dotSize = Const.dotSize
-        $0.dotPadding = Const.dotSpacing
-      }
-    }
-    private var dotLabelsPool = [Int: UICommon.DotLabel]()
-    fileprivate func dotLabel(_ idx: Int) -> UICommon.DotLabel {
-      let result = dotLabelsPool[idx] ?? UICommon.DotLabel {
-        $0.dotSize = Const.dotSize
-        $0.dotPadding = Const.dotSpacing
-      }
-      dotLabelsPool[idx] = result
+    private var iconLabelsPool = [Int: IconLabel]()
+    fileprivate func iconLabel(_ idx: Int) -> IconLabel {
+      let result = iconLabelsPool[idx] ?? IconLabel()
+      iconLabelsPool[idx] = result
       return result
     }
 
@@ -213,6 +186,8 @@ extension Permissions {
     override func viewDidLoad() {
       super.viewDidLoad()
       viewModel.apply(to: self)
+      checkAuthorizedFeaturesPermissions()
+      
       view.setNeedsLayout()
       ctaButton.addAction { [weak self] _ in self?.onContinue() }
       //        reload(for: onboarding)
@@ -266,47 +241,41 @@ fileprivate extension Permissions.ViewController {
 
   func reloadUI() {
     stackView.reload {
-      (isPad && isPortrait) ? 190.fixed : 95.fixed
+      (isPad && isPortrait) ? 120.fixed : 25.floating
       imageView.vComponent
         .size(viewModel.imageSize)
         .alignment(.center)
-      isPad ? 110.fixed : 83.fixed
+      isPad ? 30.fixed : 4.floating
       titleLabel.vComponent.maxHeight(40.ui(.paywall))
-      isPad ? 20.floating : 20.fixed
+      isPad ? 20.floating : 8.floating
       subtitleLabel.vComponent.maxHeight(30.ui(.paywall))
-      isPad ? 16.floating : 16.fixed
+      isPad ? 16.floating : 20.floating
 
-      dotLabels()
+      iconLabels()
       
-      isPad ? 160.floating : 20.floating
+      isPad ? 60.floating : 30.floating
       ctaButton.vComponent
         .size(Const.buttonSize)
         .alignment(.center)
-      60.fixed
+      30.floating
+      30.fixed
     }
     
-    func dotLabels() -> [VStackViewItemConvertible] {
-      dotLabelsPool.keys.sorted().enumerated().flatMap { idx, key -> [VStackViewItemConvertible] in
-        let label = dotLabel(key)
-        var result = [any VStackViewItemConvertible]()
-        if isPad {
-          result.append(
-            label.vComponent.maxHeight(120.ui(.paywall))
-              .width(.fixed(Const.buttonSize.width))
-              .alignment(.center)
-          )
-        }
-        else {
-          result.append(
-            label.vComponent.maxHeight(120.ui(.paywall))
-          )
+    func iconLabels() -> [VStackViewItemConvertible] {
+      iconLabelsPool.keys.sorted().enumerated().flatMap { idx, key -> [VStackViewItemConvertible] in
+        let label = iconLabel(key)
+        let isLast = idx == iconLabelsPool.count - 1
+        let component = label.vComponent
+          .width(.fixed(Const.buttonSize.width))
+          .alignment(.center)
+        if isLast {
+          return [component]
         }
         
-        let isLast = idx == dotLabelsPool.count - 1
-        if !isLast {
-          result.append(10.floating)
-        }
-        return result
+        return [
+          component,
+          isPad ? 16.floating : 8.floating
+        ]
       }
     }
     
@@ -326,8 +295,204 @@ private extension Permissions.ViewController {
     }
   }
 
+  // MARK: Reading Permissions
+  
+  func checkAuthorizedFeaturesPermissions() {
+    Task { @MainActor in
+      for feature in viewModel.features {
+        if await isFeautureAutorized(featureType: feature.type) {
+          viewModel.allowedFeatures.insert(feature.type)
+        }
+      }
+    }
+  }
+  
+  func isFeautureAutorized(featureType: Permissions.ViewModel.Feature.FeatureType) async -> Bool {
+    typealias Permission = PermissionService
+    switch featureType {
+    case .notifications:
+      return await Permission.Notifications.shared?.fetchAuthorizationStatus() ?? false
+    default: break
+    }
+    return false
+  }
+  
+  // MARK: Requesting Permissions
+  
   func requestPermissions() async {
-    _ = await NotificationsService.shared?.fetchStatus()
+    for feature in viewModel.features {
+      await requestPermission(for: feature)
+    }
+  }
+  
+  func requestPermission(for feature: Permissions.ViewModel.Feature) async {
+    typealias Permission = PermissionService
+    switch feature.type {
+    case .notifications:
+      if await Permission.Notifications.shared?.fetchStatusAndRequestIfNeeded() == .allowed {
+        viewModel.allowedFeatures.insert(.notifications)
+      }
+    default:
+      try? await Task.sleep(nanoseconds: UInt64(1e9 * Double.random(in: 0.5...3)))
+      viewModel.allowedFeatures.insert(feature.type)
+    }
   }
 
+}
+
+// MARK: - IconLabel
+
+public extension Permissions.ViewModel {
+  
+  struct Icon {
+      var icon: UIImage
+      var color: UIColor
+      var selectionColor: UIColor
+      var text: NSAttributedString
+  }
+  
+}
+private final class IconLabel: UIBase.View {
+  
+  private enum Const {
+    static let spacing = CGFloat(12)
+  }
+  
+  private let icon = IconView()
+  private let label = UIBase.Label {
+    $0.numberOfLines = 1
+    $0.setDynamicFont(font: .systemFont(ofSize: isPad ? 24 : 16, weight: .regular),
+                      maximumPointSize: isPad ? 30 : 20)
+    $0.textAlignment = isRTL ? .right : .left
+    $0.adjustsFontSizeToFitWidth = true
+    $0.minimumScaleFactor = 0.8
+  }
+  
+  override func setup() {
+    super.setup()
+    addSubviews(icon, label)
+  }
+  
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    if isRTL {
+      label.pin.left().top().bottom().sizeToFit(.height)
+      icon.pin.left(to: label.edge.right).marginLeft(Const.spacing).top().sizeToFit()
+    }
+    else {
+      icon.pin.left().sizeToFit().top()
+      label.pin.left(to: icon.edge.right).marginLeft(Const.spacing).top().bottom().sizeToFit(.height)
+    }
+  }
+  
+  override func sizeThatFits(_ size: CGSize) -> CGSize {
+    let height = icon.sizeThatFits(size).height
+    if isRTL {
+      return CGSize(width: icon.frame.maxX, height: height)
+    }
+    else {
+      return CGSize(width: label.frame.maxX, height: height)
+    }
+  }
+  
+  // MARK: - Public
+  
+  typealias Data = Permissions.ViewModel.Icon
+  func apply(data: Data) {
+    defer { setNeedsLayout() }
+    
+    icon.setup(with: .init(
+      image: data.icon,
+      color: data.color,
+      selectionColor: data.selectionColor
+    ))
+    label.attributedText = data.text
+  }
+  
+}
+
+// MARK: - IconView
+
+extension IconLabel {
+  
+  final class IconView: UIBase.View {
+    
+    private let backView = UIBase.View()
+    private let imageView = UIBase.ImageView()
+    
+    override func setup() {
+      super.setup()
+      addSubviews(backView, imageView)
+    }
+    
+    override func layoutSubviews() {
+      super.layoutSubviews()
+      backView.pin.all()
+      imageView.pin.center().sizeToFit()
+    }
+    
+    override func sizeThatFits(_ size: CGSize) -> CGSize {
+      CGSize(width: isPad ? 64 : 48, height: isPad ? 64 : 48).ui(.paywall)
+    }
+    
+    // MARK: - Public
+    
+    struct Data {
+      let image: UIImage
+      let color: UIColor
+      let selectionColor: UIColor
+    }
+    func setup(with data: Data) {
+      defer { setNeedsLayout() }
+      
+      imageView.image = data.image
+      imageView.tintColor = data.color
+      backView.backgroundColor = data.color.withAlphaComponent(0.1)
+      backView.layer.cornerRadius = 10
+      backView.layer.borderColor = data.selectionColor.cgColor
+      backView.layer.borderWidth = 3
+    }
+    
+  }
+}
+
+// MARK: - Default Features
+
+public extension Permissions.ViewModel.Feature {
+  
+  enum Defaults {
+    static let notifications = Permissions.ViewModel.Feature(
+      type: .notifications,
+      icon: PaywallCraftResources.Asset.Permissions.Feature.notifications.image,
+      title: L10n.Permissions.Feature.Notifications.title,
+      description: L10n.Permissions.Feature.Notifications.description,
+      color: PaywallCraftResources.Color.Permissions.Feature.notifications.color,
+      selectionColor: PaywallCraftResources.Color.Permissions.selected.color
+    )
+    static let location = Permissions.ViewModel.Feature(
+      type: .location,
+      icon: PaywallCraftResources.Asset.Permissions.Feature.location.image,
+      title: L10n.Permissions.Feature.Location.title,
+      description: L10n.Permissions.Feature.Location.description,
+      color: PaywallCraftResources.Color.Permissions.Feature.location.color,
+      selectionColor: PaywallCraftResources.Color.Permissions.selected.color
+    )
+    static let motion = Permissions.ViewModel.Feature(
+      type: .motion,
+      icon: PaywallCraftResources.Asset.Permissions.Feature.motion.image,
+      title: L10n.Permissions.Feature.MotionData.title,
+      description: L10n.Permissions.Feature.MotionData.description,
+      color: PaywallCraftResources.Color.Permissions.Feature.motion.color,
+      selectionColor: PaywallCraftResources.Color.Permissions.selected.color
+    )
+    static let photos = Permissions.ViewModel.Feature(
+      type: .photos,
+      icon: PaywallCraftResources.Asset.Permissions.Feature.photos.image,
+      title: L10n.Permissions.Feature.Photos.title,
+      description: L10n.Permissions.Feature.Photos.description,
+      color: PaywallCraftResources.Color.Permissions.Feature.photos.color,
+      selectionColor: PaywallCraftResources.Color.Permissions.selected.color
+    )
+  }
+  
 }

@@ -45,6 +45,15 @@ public enum Assets {
       public static let price = ColorAsset(name: "Colors/Paywall/price")
       public static let title = ColorAsset(name: "Colors/Paywall/title")
     }
+    public enum Permissions {
+      public enum Feature {
+        public static let location = ColorAsset(name: "Colors/Permissions/Feature/location")
+        public static let motion = ColorAsset(name: "Colors/Permissions/Feature/motion")
+        public static let notifications = ColorAsset(name: "Colors/Permissions/Feature/notifications")
+        public static let photos = ColorAsset(name: "Colors/Permissions/Feature/photos")
+      }
+      public static let selected = ColorAsset(name: "Colors/Permissions/selected")
+    }
     public enum Upsell {
       public static let background = ColorAsset(name: "Colors/Upsell/background")
       public static let cta = ColorAsset(name: "Colors/Upsell/cta")
@@ -59,6 +68,12 @@ public enum Assets {
       public static let star = ImageAsset(name: "Images/Paywall/star")
     }
     public enum Permissions {
+      public enum Feature {
+        public static let location = ImageAsset(name: "Images/Permissions/Feature/location")
+        public static let motion = ImageAsset(name: "Images/Permissions/Feature/motion")
+        public static let notifications = ImageAsset(name: "Images/Permissions/Feature/notifications")
+        public static let photos = ImageAsset(name: "Images/Permissions/Feature/photos")
+      }
       public static let image = ImageAsset(name: "Images/Permissions/image")
     }
     public enum Upsell {
