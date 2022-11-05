@@ -23,7 +23,7 @@ extension Analytics {
 
   enum Event: IAnalyticsEvent {
 
-    case sessionDetails(notificationStatus: NotificationsService.Status)
+    case sessionDetails(notificationStatus: PermissionService.Notifications.Status)
 
 //    enum Orientation: IAnalyticsValue {
 //      case portrait

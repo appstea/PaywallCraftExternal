@@ -76,7 +76,8 @@ extension Analytics {
     private func didBecomeActive() {
       if Stored.didPassPrepermission {
         Task { [weak self] in
-          if let status = await NotificationsService.shared?.fetchStatus() {
+          let notifications = PermissionService.Notifications.shared
+          if let status = await notifications?.fetchStatusAndRequestIfNeeded() {
             self?.sendEvent(.sessionDetails(notificationStatus: status))
           }
         }
