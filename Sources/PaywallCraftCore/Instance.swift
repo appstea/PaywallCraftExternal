@@ -30,7 +30,7 @@ final public class Instance: Cascade.AppDelegate {
     UIService.shared,
     BranchService.shared,
     Paywall.Service.shared,
-    PermissionService.Notifications.shared,
+    NotificationService.shared,
   ]
 
   public private(set) lazy var scene: Scene = {
@@ -58,7 +58,7 @@ final public class Instance: Cascade.AppDelegate {
 
   public required init(config: Config) {
     self.config = config
-    Analytics.Service.shared = .init(config: config.analytics)
+    Analytics.Service.shared = .init(config: config)
     Paywall.Service.shared = .init(config: config)
   }
 
