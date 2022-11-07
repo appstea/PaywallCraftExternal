@@ -65,22 +65,6 @@ extension PermissionService {
           }
         }
       }
-      
-//      typealias Permission = PermissionService
-//      switch feature {
-//      case .notifications:
-//        if await Notifications.shared?.fetchStatusAndRequestIfNeeded() == .allowed {
-//          return true
-//        }
-//      case .location:
-//        if await Location.shared?.fetchStatusAndRequestIfNeeded() == .authorized {
-//          return true
-//        }
-//      default:
-//        try? await Task.sleep(nanoseconds: UInt64(1e9 * Double.random(in: 0.5...3)))
-//        return true
-//      }
-//      return false
     }
     
   }
@@ -127,25 +111,7 @@ extension PermissionService {
           .notSupported: return .notDetermined
       case .denied: return .denied
       }
-//      switch feature {
-//      case .notifications:
-//        return await Notifications.shared?.fetchAuthorizationStatus() ?? false
-//      case .location:
-//        return await Location.shared?.fetchAuthorizationStatus() ?? false
-//      default: break
-//      }
-//      return false
     }
     
   }
-  
 }
-
-//protocol IPermissionService {
-//  
-//  associatedtype Status
-//  
-//  func fetchStatusAndRequestIfNeeded() async -> Status
-//  func fetchAuthorizationStatus() async -> Bool
-//  
-//}
