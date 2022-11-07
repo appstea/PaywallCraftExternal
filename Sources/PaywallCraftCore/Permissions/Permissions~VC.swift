@@ -88,6 +88,13 @@ extension Permissions {
     public init() {}
 
     fileprivate func apply(to view: ViewController) {
+      guard Thread.isMainThread else {
+        DispatchQueue.main.async {
+          self.apply(to: view)
+        }
+        return
+      }
+      
       view.bgView.colors = bgColors
       view.imageView.image = image
 
@@ -136,6 +143,7 @@ extension Permissions {
       didSet { viewModel.apply(to: self) }
     }
 
+    private var continueTask: Task<Void, Never>?
     private var passContinuation: CheckedContinuation<Void, Never>?
 
     override public var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
@@ -293,7 +301,8 @@ fileprivate extension Permissions.ViewController {
 private extension Permissions.ViewController {
 
   func onContinue() {
-    Task {
+    continueTask?.cancel()
+    continueTask = Task {
       await requestPermissions()
       Stored.didPassPrepermission = true
       passContinuation?.resume(returning: Void())
@@ -313,7 +322,7 @@ private extension Permissions.ViewController {
     }
   }
   
-  @MainActor
+//  @MainActor
   func requestPermissions() async {
     let permissions = viewModel.permissions.map(\.type)
     let requests = PermissionService.Requester(permissions: permissions)
