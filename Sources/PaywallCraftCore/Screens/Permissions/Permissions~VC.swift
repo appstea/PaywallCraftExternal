@@ -42,12 +42,22 @@ extension Permissions {
       Color.Onboarding.background.color.withAlphaComponent(0),
     ]
     public var image = Asset.Permissions.image.image
-    public var imageSize = (isPad && isLandscape)
-    ? CGSize(width: 248.ui(.paywall), height: 223.ui(.paywall))
-    : CGSize(width: 310.ui(.paywall), height: 279.ui(.paywall))
+    public struct ImageSizeContext {
+      public var ui: UIContext { .init() }
+      public internal(set) var containerSize = CGSize.zero
+      public internal(set) var aspectRatio = CGFloat.zero
+    }
+    public let imageSize = ContextValueProvider(ctx: ImageSizeContext()) { ctx -> CGSize in
+      let intent = ctx.ui.uiIntent
+      if ctx.ui.isPad && ctx.ui.isLandscape {
+          return CGSize(width: 248.ui(intent), height: 223.ui(intent))
+      }
+      else {
+        return CGSize(width: 310.ui(intent), height: 279.ui(intent))
+      }
+    }
 
     public var textColor = Color.Main.text.color
-//    public var dotColor = Color.DotLabel.dot.color
     public var ctaTextColor = UIColor.white
     public var ctaBgColor = Color.Onboarding.continue.color
 
@@ -97,6 +107,7 @@ extension Permissions {
       
       view.bgView.colors = bgColors
       view.imageView.image = image
+      imageSize.ctx.aspectRatio = image.size.aspectRatio
 
       view.titleLabel.text = title
       view.titleLabel.textColor = textColor
@@ -128,7 +139,7 @@ extension Permissions {
       view.ctaButton.setTitleColor(ctaTextColor, for: .normal)
       view.ctaButton.backgroundColor = ctaBgColor
 
-      view.reloadUI()
+      view.view.setNeedsLayout()
     }
   }
 
@@ -209,6 +220,7 @@ extension Permissions {
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
       super.traitCollectionDidChange(previousTraitCollection)
+      
       viewModel.apply(to: self)
       view.setNeedsLayout()
     }
@@ -226,7 +238,8 @@ extension Permissions {
         bgView.pin.top().horizontally().height(280.ui(.paywall) + safeArea.top)
       }
       stackView.pin.hCenter().width(contentWidth).vertically(safeArea)
-
+      viewModel.imageSize.ctx.containerSize = stackView.bounds.size
+      
       reloadUI()
     }
 
@@ -249,7 +262,7 @@ fileprivate extension Permissions.ViewController {
     stackView.reload {
       (isPad && isPortrait) ? 120.fixed : 25.floating
       imageView.vComponent
-        .size(viewModel.imageSize)
+        .size(viewModel.imageSize())
         .alignment(.center)
       isPad ? 30.fixed : 4.floating
       titleLabel.vComponent.maxHeight(40.ui(.paywall))
