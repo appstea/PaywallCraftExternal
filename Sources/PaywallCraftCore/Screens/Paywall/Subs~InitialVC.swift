@@ -41,29 +41,47 @@ extension Paywall {
     public var bgColor = Color.Main.back.color
     public var closeColor = Color.Paywall.title.color
 
-    public var image = Asset.Paywall.image.image
+//    public var image = Asset.Paywall.image.image
+//
+//    public struct ImageSizeContext {
+//      public var ui: UIContext { .init() }
+//      public internal(set) var aspectRatio: CGFloat = 0.0
+//      public internal(set) var containerSize: CGSize = .zero
+//    }
+//    public let imageHeight = ContextValueProvider(ctx: ImageSizeContext()) { ctx -> CGFloat in
+//      if ctx.aspectRatio == 0 { return 0 }
+//
+//      // common
+//      if ctx.ui.isLandscape {
+//        return ctx.containerSize.width / ctx.aspectRatio * 0.8
+//      }
+//
+//      // pad portrait
+//      if ctx.ui.isPad {
+//        return 768.ui(ctx.ui.uiIntent) / ctx.aspectRatio * 0.8
+//      }
+//      // phone portrait
+//      else {
+//        return 375.ui(ctx.ui.uiIntent) / ctx.aspectRatio * 0.8
+//      }
+//    }
     
-    public struct ImageSizeContext {
-      public var ui: UIContext { .init() }
-      public internal(set) var aspectRatio: CGFloat = 0.0
-      public internal(set) var containerSize: CGSize = .zero
-    }
-    public let imageHeight = ContextValueProvider(ctx: ImageSizeContext()) { ctx -> CGFloat in
-      if ctx.aspectRatio == 0 { return 0 }
+    public var image = Image(Asset.Paywall.image.image) { img -> CGSize in
+      if img.aspectRatio == 0 { return .zero }
       
-      // common
-      if ctx.ui.isLandscape {
-        return ctx.containerSize.width / ctx.aspectRatio * 0.8
+      let ctx = img.ctx
+      let h: CGFloat
+      switch (ctx.isPad, ctx.isLandscape) {
+      case (_, true): // both, ladscape
+        h = img.containerSize.width / img.aspectRatio * 0.8
+      case (true, _): // pad, portrait
+        h = 768.ui(ctx.uiIntent) / img.aspectRatio * 0.8
+      case (false, _): // phone, portrait
+        h = 375.ui(ctx.uiIntent) / img.aspectRatio * 0.8
       }
       
-      // pad portrait
-      if ctx.ui.isPad {
-        return 768.ui(ctx.ui.uiIntent) / ctx.aspectRatio * 0.8
-      }
-      // phone portrait
-      else {
-        return 375.ui(ctx.ui.uiIntent) / ctx.aspectRatio * 0.8
-      }
+      let w = h * img.aspectRatio
+      return CGSize(width: w, height: h)
     }
 
     public var title = L10n.Paywall.TwoButtons.title
@@ -97,8 +115,7 @@ extension Paywall {
       view.view.backgroundColor = bgColor
       view.closeButton.tintColor = closeColor
       view.bgView.colors = fadeColors
-      view.imageView.image = image
-      imageHeight.ctx.aspectRatio = image.size.aspectRatio
+      view.imageView.image = image.uiImage
 
       view.titleLabel.text = title
       view.subtitleLabel.text = subtitle
@@ -224,7 +241,7 @@ extension Paywall {
       imageView
         .vComponent
         .skipLayout()
-        .height(.fixed(viewModel.imageHeight()))
+        .height(.fixed(viewModel.image.calculateSize().height))
     }
 
     fileprivate let titleLabel = UIBase.Label {
@@ -332,7 +349,9 @@ extension Paywall {
 
       vStackView.pin.start().end().top().bottom(to: additionalButtonsContainer.edge.top)
       vStackView.layoutIfNeeded()
-      viewModel.imageHeight.ctx.containerSize = vStackView.bounds.size
+      if viewModel.image.containerSize != vStackView.bounds.size {
+        viewModel.image.containerSize = vStackView.bounds.size
+      }
       
       reloadUI()
       textLabel.frame.size.height += vStackView.spacing(after: textLabel.vComponent) * 0.8
