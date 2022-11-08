@@ -16,6 +16,7 @@ import StackCraft
 import UIBase
 import UICommon
 import PaywallCraftResources
+import PaywallCraftUI
 
 public extension Config.UI {
 
@@ -41,6 +42,29 @@ extension Paywall {
     public var closeColor = Color.Paywall.title.color
 
     public var image = Asset.Paywall.image.image
+    
+    public struct ImageSizeContext {
+      public var ui: UIContext { .init() }
+      public internal(set) var aspectRatio: CGFloat = 0.0
+      public internal(set) var containerSize: CGSize = .zero
+    }
+    public let imageHeight = ContextValueProvider(ctx: ImageSizeContext()) { ctx -> CGFloat in
+      if ctx.aspectRatio == 0 { return 0 }
+      
+      // common
+      if ctx.ui.isLandscape {
+        return ctx.containerSize.width / ctx.aspectRatio * 0.8
+      }
+      
+      // pad portrait
+      if ctx.ui.isPad {
+        return 768.ui(ctx.ui.uiIntent) / ctx.aspectRatio * 0.8
+      }
+      // phone portrait
+      else {
+        return 375.ui(ctx.ui.uiIntent) / ctx.aspectRatio * 0.8
+      }
+    }
 
     public var title = L10n.Paywall.TwoButtons.title
     public var titleColor = Color.Paywall.title.color
@@ -74,6 +98,7 @@ extension Paywall {
       view.closeButton.tintColor = closeColor
       view.bgView.colors = fadeColors
       view.imageView.image = image
+      imageHeight.ctx.aspectRatio = image.size.aspectRatio
 
       view.titleLabel.text = title
       view.subtitleLabel.text = subtitle
@@ -86,8 +111,9 @@ extension Paywall {
       view.trialButton.setBackgroundImage(trialBgColor.image(), for: .normal)
       view.trialButton.setTitleColor(trialTextColor, for: .normal)
 
-      view.instantButton.setBackgroundImage(instantBgColor.image(), for: .normal)
-      view.instantButton.layer.borderColor = instantBorderColor.cgColor
+      view.instantButton.indicatorColor = instantBorderColor
+      view.instantButton.color = instantBgColor
+      view.instantButton.borderColor = instantBorderColor
 
       zip(
         [view.termsButton, view.privacyButton, view.restoreButton],
@@ -98,6 +124,8 @@ extension Paywall {
       }
 
       view.textLabel.attributedText = textWithTrial(for: view.trialProduct)
+      
+      view.instantButton.setContent(instantText(for: view.instantProduct).flatMap { .text($0) } ?? .loading)
       view.instantButton.setAttributedTitle(instantText(for: view.instantProduct), for: .normal)
     }
 
@@ -192,17 +220,12 @@ extension Paywall {
     fileprivate let bgView = UICommon.GradientView { $0.direction = .down }
     fileprivate let imageView = UIBase.ImageView { $0.contentMode = .scaleAspectFit }
 
-    private lazy var portraitImage = imageView
-      .vComponent
-      .skipLayout()
-      .height(.fixed(((isPad ? 768.ui(.paywall) : 375.ui(.paywall)) / imageView.image!.size.aspectRatio) * 0.8))
-
-    private lazy var landscapeImage = imageView
-      .vComponent
-      .skipLayout()
-      .height(.fixed((vStackView.bounds.width / imageView.image!.size.aspectRatio) * 0.8))
-
-    private var image: VStackView.Component { isPortrait ? portraitImage : landscapeImage }
+    private var image: VStackView.Component {
+      imageView
+        .vComponent
+        .skipLayout()
+        .height(.fixed(viewModel.imageHeight()))
+    }
 
     fileprivate let titleLabel = UIBase.Label {
       $0.setDynamicFont(font: .systemFont(ofSize: 40.ui(.paywall), weight: .bold))
@@ -236,7 +259,7 @@ extension Paywall {
       $0.clipsToBounds = true
     }.asAccessibilityElement(traits: .button)
 
-    fileprivate let instantButton = UIBase.Button {
+    fileprivate let instantButton = PaywallCraftUI.LoadableButton {
       $0.titleLabel?.numberOfLines = 2
       $0.layer.borderWidth = 1
       $0.layer.cornerRadius = 13
@@ -252,6 +275,7 @@ extension Paywall {
 
     override func loadView() {
       super.loadView()
+      
       view.addSubviews(contentView, closeButton)
 
       contentView.addSubviews(imageView, vStackView, textLabel, additionalButtonsContainer)
@@ -276,6 +300,7 @@ extension Paywall {
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
       super.traitCollectionDidChange(previousTraitCollection)
+      
       viewModel.apply(to: self)
     }
 
@@ -287,6 +312,7 @@ extension Paywall {
 
     override func viewDidLayoutSubviews() {
       super.viewDidLayoutSubviews()
+      
       let safeArea = view.pin.safeArea
       if isPad && isPortrait {
         bgView.pin.top().horizontally().height(35%)
@@ -306,7 +332,8 @@ extension Paywall {
 
       vStackView.pin.start().end().top().bottom(to: additionalButtonsContainer.edge.top)
       vStackView.layoutIfNeeded()
-
+      viewModel.imageHeight.ctx.containerSize = vStackView.bounds.size
+      
       reloadUI()
       textLabel.frame.size.height += vStackView.spacing(after: textLabel.vComponent) * 0.8
 
