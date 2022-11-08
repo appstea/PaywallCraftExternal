@@ -6,6 +6,21 @@
 
 import Foundation
 
+extension FloatingPoint {
+ 
+  /// linear interpolation equals to: ```s + (d - s) * t```
+  static func lerp(_ s: Self, _ d: Self, _ t: Self) -> Self { s + (d - s) * t }
+  
+  func normalized(by range: ClosedRange<Self>) -> Self {
+    let length = range.upperBound - range.lowerBound
+    if length <= .zero { return .zero }
+    
+    let val = (self - range.lowerBound) / length
+    return val
+  }
+  
+}
+
 extension Equatable {
 
   /// makes use of enumCase1.isAny(of: .enumCase1, .enumCase2) available

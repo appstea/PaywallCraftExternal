@@ -48,9 +48,19 @@ extension Paywall {
       let h: CGFloat
       switch (ctx.isPad, ctx.isLandscape) {
       case (_, true): // both, ladscape
-        h = img.containerSize.width / img.aspectRatio * 0.8
+        let t = (img.containerSize.height / 768.ui(.paywall))
+          .normalized(by: 0.5498046875...0.931640625)
+        h = min(
+          img.containerSize.width / img.aspectRatio * 0.8,
+          img.containerSize.height * .lerp(0.3, 0.6, t)
+        )
       case (true, _): // pad, portrait
-        h = 768.ui(ctx.uiIntent) / img.aspectRatio * 0.8
+        let t = img.containerSize.height / 1024.ui(.paywall)
+          .normalized(by: 0.4908424908424908...0.9494505494505494)
+        h = min(
+          768.ui(ctx.uiIntent) / img.aspectRatio * 0.8,
+          img.containerSize.height * .lerp(0.4, 0.8, t)
+        )
       case (false, _): // phone, portrait
         h = 375.ui(ctx.uiIntent) / img.aspectRatio * 0.8
       }
@@ -183,9 +193,6 @@ extension Paywall {
   final class InitialVC: ViewController {
 
     private enum Const {
-      static let contentWidth = isPad ? 480.ui(.paywall) : 285.ui(.paywall)
-
-      static let imageWidth = contentWidth + 50.ui(.paywall)
       static let additionalButtonsHeight = CGFloat(50)
       static let ctaButtonSize = CGSize(width: isPad ? 400 : 285.ui(.paywall), height: isPad ? 70 : 50)
     }
@@ -305,6 +312,11 @@ extension Paywall {
     override func viewDidLayoutSubviews() {
       super.viewDidLayoutSubviews()
       
+      let w = view.bounds.width
+      let contentFitWidth = isPad
+      ? min(w - 20.ui, 480.ui(.paywall))
+      : 285.ui(.paywall)
+      
       let safeArea = view.pin.safeArea
       if isPad && isPortrait {
         bgView.pin.top().horizontally().height(35%)
@@ -313,9 +325,9 @@ extension Paywall {
         bgView.pin.top().horizontally().height(280.ui(.paywall) + safeArea.top)
       }
       _ = isRTL
-      ? closeButton.pin.start(32).size(16).top(safeArea.top + 16)
-      : closeButton.pin.end(32).size(16).top(safeArea.top + 16)
-      contentView.pin.top(safeArea).bottom(safeArea).hCenter().width(Const.contentWidth)
+      ? closeButton.pin.start(32).size(16).top(max(safeArea.top + 16, 32))
+      : closeButton.pin.end(32).size(16).top(max(safeArea.top + 16, 32))
+      contentView.pin.top(safeArea).bottom(safeArea).hCenter().width(contentFitWidth)
 
       additionalButtonsContainer.pin.bottom().start().end().height(Const.additionalButtonsHeight)
       termsButton.pin.start().top().bottom().sizeToFit()
