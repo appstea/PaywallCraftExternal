@@ -140,7 +140,6 @@ extension Permissions {
   final class ViewController: UIBase.ViewController {
 
     private enum Const {
-      static let buttonSize = CGSize(width: isPad ? 400.ui(.paywall) : 285.ui(.paywall), height: isPad ? 70 : 50)
       static var contentWidth: CGFloat { (isPad && isLandscape) ? 0.6 : 0.8 }
     }
 
@@ -255,6 +254,13 @@ extension Permissions {
 fileprivate extension Permissions.ViewController {
 
   func reloadUI() {
+    // ? 0.52 : 0.76
+//    let ctaFitWidth = isPad ? 400.ui(.paywall) : 285.ui(.paywall)
+    let w = stackView.bounds.width
+    let ctaFitWidth = isPad
+    ? min(w - 20.ui(.paywall), 400.ui(.paywall))
+    : 285.ui(.paywall)
+    
     stackView.reload {
       (isPad && isPortrait) ? 120.fixed : 25.floating
       imageView.vComponent
@@ -266,22 +272,23 @@ fileprivate extension Permissions.ViewController {
       subtitleLabel.vComponent.maxHeight(30.ui(.paywall))
       isPad ? 16.floating : 20.floating
 
-      iconLabels()
+      iconLabels(widthToFit: ctaFitWidth)
       
       isPad ? 60.floating : 30.floating
       ctaButton.vComponent
-        .size(Const.buttonSize)
+        .size(CGSize(width: ctaFitWidth, height: isPad ? 70 : 50))
         .alignment(.center)
       30.floating
       30.fixed
     }
     
-    func iconLabels() -> [VStackViewItemConvertible] {
+    func iconLabels(widthToFit: CGFloat) -> [VStackViewItemConvertible] {
       iconLabelsPool.keys.sorted().enumerated().flatMap { idx, key -> [VStackViewItemConvertible] in
         let label = iconLabel(key)
         let isLast = idx == iconLabelsPool.count - 1
         let component = label.vComponent
-          .width(.fixed(Const.buttonSize.width))
+          .width(.fixed(widthToFit))
+          .height(.floating(isPad ? 64.ui(.paywall) : 48.ui(.paywall)))
           .alignment(.center)
         if isLast {
           return [component]
@@ -373,22 +380,28 @@ private final class IconLabel: UIBase.View {
   override func layoutSubviews() {
     super.layoutSubviews()
     if isRTL {
-      label.pin.left().top().bottom().sizeToFit(.height)
-      icon.pin.left(to: label.edge.right).marginLeft(Const.spacing).top().sizeToFit()
+      label.pin.left()
+        .vCenter().maxHeight(bounds.height).sizeToFit(.height)
+      icon.pin.left(to: label.edge.right).marginLeft(Const.spacing)
+        .vCenter().maxHeight(bounds.height).sizeToFit(.height)
     }
     else {
-      icon.pin.left().sizeToFit().top()
-      label.pin.left(to: icon.edge.right).marginLeft(Const.spacing).top().bottom().sizeToFit(.height)
+      icon.pin.left()
+        .vCenter().maxHeight(bounds.height).sizeToFit(.height)
+      label.pin.left(to: icon.edge.right).marginLeft(Const.spacing)
+        .vCenter().maxHeight(bounds.height).sizeToFit(.height)
     }
   }
   
   override func sizeThatFits(_ size: CGSize) -> CGSize {
-    let height = icon.sizeThatFits(size).height
+    let iconHeight = icon.sizeThatFits(size).height
+    let textHeight = label.sizeThatFits(size).height
+    let h = max(iconHeight, textHeight)
     if isRTL {
-      return CGSize(width: icon.frame.maxX, height: height)
+      return CGSize(width: icon.frame.maxX, height: h)
     }
     else {
-      return CGSize(width: label.frame.maxX, height: height)
+      return CGSize(width: label.frame.maxX, height: h)
     }
   }
   
@@ -424,12 +437,18 @@ extension IconLabel {
     
     override func layoutSubviews() {
       super.layoutSubviews()
-      backView.pin.all()
-      imageView.pin.center().sizeToFit()
+      let size = min(bounds.size.width, bounds.size.height)
+      backView.pin.center().size(size)
+      imageView.pin.center()
+        .sizeToFit().maxHeight(size * 0.9).maxWidth(size * 0.9)
     }
     
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-      CGSize(width: isPad ? 64 : 48, height: isPad ? 64 : 48).ui(.paywall)
+      let minSide = min(size.width, size.height)
+      let maxSize = (isPad ? 64 : 48).ui(.paywall)
+      let side = min(maxSize, minSide)
+      let result = CGSize(width: side, height: side).ui(.paywall)
+      return result
     }
     
     // MARK: - Public

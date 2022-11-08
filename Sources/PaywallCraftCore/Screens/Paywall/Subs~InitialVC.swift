@@ -40,31 +40,6 @@ extension Paywall {
     ]
     public var bgColor = Color.Main.back.color
     public var closeColor = Color.Paywall.title.color
-
-//    public var image = Asset.Paywall.image.image
-//
-//    public struct ImageSizeContext {
-//      public var ui: UIContext { .init() }
-//      public internal(set) var aspectRatio: CGFloat = 0.0
-//      public internal(set) var containerSize: CGSize = .zero
-//    }
-//    public let imageHeight = ContextValueProvider(ctx: ImageSizeContext()) { ctx -> CGFloat in
-//      if ctx.aspectRatio == 0 { return 0 }
-//
-//      // common
-//      if ctx.ui.isLandscape {
-//        return ctx.containerSize.width / ctx.aspectRatio * 0.8
-//      }
-//
-//      // pad portrait
-//      if ctx.ui.isPad {
-//        return 768.ui(ctx.ui.uiIntent) / ctx.aspectRatio * 0.8
-//      }
-//      // phone portrait
-//      else {
-//        return 375.ui(ctx.ui.uiIntent) / ctx.aspectRatio * 0.8
-//      }
-//    }
     
     public var image = Image(Asset.Paywall.image.image) { img -> CGSize in
       if img.aspectRatio == 0 { return .zero }

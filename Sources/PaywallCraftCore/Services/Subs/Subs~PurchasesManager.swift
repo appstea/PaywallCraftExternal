@@ -54,7 +54,7 @@ extension Paywall {
     private weak var currentPaywallScreen: Paywall.ViewController?
     private let transactionsObserver = TransactionsObserver()
 
-    private var products: [StoreProduct] = [] {
+    private var products: Set<StoreProduct> = [] {
       didSet { Notification.Paywall.Update.post() }
     }
 
@@ -278,7 +278,7 @@ extension Paywall {
 //        return products.filter { $0.productIdentifier == Paywall.Product.monthly.id }
         return Array(products.prefix(2))
       case .none:
-        return products
+        return Array(products)
       }
     }
 
@@ -315,13 +315,13 @@ private extension Paywall.PurchasesManager {
 
       if let packages = offerings?.current?.availablePackages {
         for package in packages {
-          self.products.append(package.storeProduct)
+          self.products.insert(package.storeProduct)
         }
       }
 
       if let packages = offerings?.offering(identifier: self.rcSetup.offering)?.availablePackages {
         for package in packages {
-          self.products.append(package.storeProduct)
+          self.products.insert(package.storeProduct)
         }
       }
       debugPrint("[DEBUG] Products: \(self.products)")
