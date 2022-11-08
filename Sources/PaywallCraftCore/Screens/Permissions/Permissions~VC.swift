@@ -238,14 +238,6 @@ extension Permissions {
       }
     }
 
-    //    func reload(for onboarding: Onboarding) {
-    ////        self.onboarding = onboarding
-    //        UIView.transition(with: imageView, duration: 0.25, options: .transitionCrossDissolve) { [unowned self] in
-    //            imageView.image = onboarding.image
-    //        } completion: { _ in }
-    //        view.setNeedsLayout()
-    //    }
-
   }
 }
 
@@ -305,6 +297,7 @@ private extension Permissions.ViewController {
     continueTask = Task {
       await requestPermissions()
       Stored.didPassPrepermission = true
+      try? await Task.sleep(nanoseconds: NSEC_PER_SEC * 1)
       passContinuation?.resume(returning: Void())
       passContinuation = nil
     }
