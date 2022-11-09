@@ -324,9 +324,13 @@ extension Paywall {
       else {
         bgView.pin.top().horizontally().height(280.ui(.paywall) + safeArea.top)
       }
-      _ = isRTL
-      ? closeButton.pin.start(32).size(16).top(max(safeArea.top + 16, 32))
-      : closeButton.pin.end(32).size(16).top(max(safeArea.top + 16, 32))
+      
+      if isRTL {
+        closeButton.pin.start(32).size(16).top(max(safeArea.top + 16, 32))
+      }
+      else {
+        closeButton.pin.end(32).size(16).top(max(safeArea.top + 16, 32))
+      }
       contentView.pin.top(safeArea).bottom(safeArea).hCenter().width(contentFitWidth)
 
       additionalButtonsContainer.pin.bottom().start().end().height(Const.additionalButtonsHeight)

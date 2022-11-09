@@ -58,7 +58,10 @@ public final class UpsellView: UIBase.View {
       .top().start().end()
       .height(1.0 / UIScreen.main.scale)
 
-    defaultView.pin.hCenter().size(Const.upsellSize)
+    defaultView.pin.hCenter()
+      .height(Const.upsellSize.height)
+      .maxWidth(min(bounds.width, Const.upsellSize.width))
+      .sizeToFit(.width)
     if isPad {
       defaultView.pin.vCenter()
     }

@@ -261,6 +261,10 @@ fileprivate extension Permissions.ViewController {
     ? min(w - 20.ui(.paywall), 400.ui(.paywall))
     : 285.ui(.paywall)
     
+    let vSize = traitCollection.verticalSizeClass
+    let hSize = traitCollection.horizontalSizeClass
+    debugPrint("[DEBUG] sizes: ", vSize, hSize)
+    
     stackView.reload {
       (isPad && isPortrait) ? 120.fixed : 25.floating
       imageView.vComponent
