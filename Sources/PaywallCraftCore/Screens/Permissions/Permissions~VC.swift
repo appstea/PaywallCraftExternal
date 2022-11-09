@@ -254,23 +254,23 @@ extension Permissions {
 fileprivate extension Permissions.ViewController {
 
   func reloadUI() {
-    // ? 0.52 : 0.76
-//    let ctaFitWidth = isPad ? 400.ui(.paywall) : 285.ui(.paywall)
     let w = stackView.bounds.width
     let ctaFitWidth = isPad
     ? min(w - 20.ui(.paywall), 400.ui(.paywall))
     : 285.ui(.paywall)
     
-    let vSize = traitCollection.verticalSizeClass
-    let hSize = traitCollection.horizontalSizeClass
-    debugPrint("[DEBUG] sizes: ", vSize, hSize)
-    
     stackView.reload {
-      (isPad && isPortrait) ? 120.fixed : 25.floating
+      if (isPad && isPortrait) {
+        20.fixed
+        100.floating
+      }
+      else {
+        25.floating
+      }
       imageView.vComponent
         .size(viewModel.image.calculateSize())
         .alignment(.center)
-      isPad ? 30.fixed : 4.floating
+      isPad ? 30.floating : 4.floating
       titleLabel.vComponent.maxHeight(40.ui(.paywall))
       isPad ? 20.floating : 8.floating
       subtitleLabel.vComponent.maxHeight(30.ui(.paywall))
@@ -292,7 +292,7 @@ fileprivate extension Permissions.ViewController {
         let isLast = idx == iconLabelsPool.count - 1
         let component = label.vComponent
           .width(.fixed(widthToFit))
-          .height(.floating(isPad ? 64.ui(.paywall) : 48.ui(.paywall)))
+          .height(.floating(48.ui(.paywall)))
           .alignment(.center)
         if isLast {
           return [component]
@@ -449,7 +449,7 @@ extension IconLabel {
     
     override func sizeThatFits(_ size: CGSize) -> CGSize {
       let minSide = min(size.width, size.height)
-      let maxSize = (isPad ? 64 : 48).ui(.paywall)
+      let maxSize = 48.ui(.paywall)
       let side = min(maxSize, minSide)
       let result = CGSize(width: side, height: side).ui(.paywall)
       return result
