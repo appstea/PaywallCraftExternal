@@ -56,13 +56,16 @@ extension PermissionService {
         case .motion: permission = MotionPermission()
         case .photos: permission = PhotoLibraryPermission()
         }
+        
+        let shouldSkipResponse = type.isAny(of: .locationWhenInUse, .locationAlways)
         permission.request {
-          switch permission.status {
-          case .authorized: c.resume(returning: .authorized)
-          case .notDetermined,
-              .notSupported: c.resume(returning: .notDetermined)
-          case .denied: c.resume(returning: .denied)
-          }
+          if shouldSkipResponse { return }
+          
+          c.resume(returning: permission.status.domain)
+        }
+        
+        if shouldSkipResponse {
+          c.resume(returning: permission.status.domain)
         }
       }
     }
@@ -105,13 +108,23 @@ extension PermissionService {
       case .motion: permission = MotionPermission()
       case .photos: permission = PhotoLibraryPermission()
       }
-      switch permission.status {
-      case .authorized: return .authorized
-      case .notDetermined,
-          .notSupported: return .notDetermined
-      case .denied: return .denied
-      }
+      return permission.status.domain
     }
     
   }
+}
+
+// MARK: - PermissionsKit mapping
+
+fileprivate extension PermissionsKit.Permission.Status {
+  
+  var domain: PermissionService.Status {
+    switch self {
+    case .authorized: return .authorized
+    case .notDetermined,
+        .notSupported: return .notDetermined
+    case .denied: return .denied
+    }
+  }
+  
 }

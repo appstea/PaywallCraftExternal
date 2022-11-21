@@ -136,6 +136,15 @@
       }
     },
     {
+      "identity" : "permissionskit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dDomovoj/PermissionsKit",
+      "state" : {
+        "revision" : "409deeb9be1b599a3fc6f67641e0c0b3f0baf849",
+        "version" : "9.0.2"
+      }
+    },
+    {
       "identity" : "pinlayout",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/layoutBox/PinLayout",
