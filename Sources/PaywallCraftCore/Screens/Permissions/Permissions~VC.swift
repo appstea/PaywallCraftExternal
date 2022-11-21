@@ -86,6 +86,13 @@ extension Permissions {
       Permission.Defaults.photos,
       Permission.Defaults.motion,
     ]
+    fileprivate var resolvedPermissions: [Permission] {
+      permissions.sorted { lhs, rhs in
+        if lhs.type.isAny(of: .locationAlways, .locationWhenInUse) { return false }
+        if rhs.type.isAny(of: .locationAlways, .locationWhenInUse) { return true }
+        return false
+      }
+    }
     public var cta = L10n.Permissions.Button.continue
     
     fileprivate var allowedPermissions: Set<Permissions.ViewModel.Permission.PermissionType> = []
@@ -109,7 +116,7 @@ extension Permissions {
       view.subtitleLabel.text = subtitle
       view.subtitleLabel.textColor = textColor
 
-      permissions.enumerated().forEach { idx, feature in
+      resolvedPermissions.enumerated().forEach { idx, feature in
         let label = view.iconLabel(idx)
         let text = feature.title
           .withFont(DynamicFont.regular(of: isPad ? 24 : 16)
@@ -325,7 +332,7 @@ private extension Permissions.ViewController {
   
   func checkAuthorizedFeaturesPermissions() {
     Task {
-      let permissions = viewModel.permissions.map(\.type)
+      let permissions = viewModel.resolvedPermissions.map(\.type)
       let fetches = PermissionService.Fetcher(permissions: permissions)
       for await (permission, status) in fetches {
         if status == .authorized {
@@ -337,7 +344,7 @@ private extension Permissions.ViewController {
   
 //  @MainActor
   func requestPermissions() async {
-    let permissions = viewModel.permissions.map(\.type)
+    let permissions = viewModel.resolvedPermissions.map(\.type)
     let requests = PermissionService.Requester(permissions: permissions)
     for await (permission, status) in requests {
       if status == .authorized {
