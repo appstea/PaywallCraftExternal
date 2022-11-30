@@ -366,12 +366,17 @@ private extension Paywall.InitialVC {
     var changed = false
 
 //    let trial = imageType == .additional ? paywall?.productsList(for: .additionTrial).first : paywall?.productsList(for: .none).first
-    let trial = paywall?.productsList(for: screen).first
+    var products = paywall?.productsList()
+    
+    let trial = products?.first(where: { $0.introductoryDiscount?.type == .introductory })
+    if let trial, let idx = products?.firstIndex(of: trial) {
+      products?.remove(at: idx)
+    }
 
     changed = changed || trial != trialProduct
     trialProduct = trial
 
-    if let instProduct = paywall?.productsList().enumerated().first(where: {$0.0 == 1})?.1 {
+    if let instProduct = products?.first(where: { $0.introductoryDiscount == nil }) {
 //      let instant = imageType == .additional ? paywall?.productsList(for: .additionInstant).first : instProduct
       let instant = instProduct
       changed = changed || instant != instantProduct
