@@ -39,10 +39,10 @@ struct UpsellBuilder {
 
   struct ShowCtx {
     let source: Paywall.Source
-    let screen: Paywall.Screen
+    let screen: any IPaywallScreen
     let presenter: UIViewController
 
-    public init(source: Paywall.Source, screen: Paywall.Screen, presenter: UIViewController) {
+    public init(source: Paywall.Source, screen: any IPaywallScreen, presenter: UIViewController) {
       self.source = source
       self.screen = screen
       self.presenter = presenter

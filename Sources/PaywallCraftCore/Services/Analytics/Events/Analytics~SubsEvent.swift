@@ -15,8 +15,8 @@ extension Analytics.Event {
 
     typealias Paywall = PaywallCraftCore.Paywall
 
-    case upsellShown(source: Paywall.Source, screen: Paywall.Screen)
-    case productSelected( source: Paywall.Source, screen: Paywall.Screen, productId: String)
+    case upsellShown(source: Paywall.Source, screen: any IPaywallScreen)
+    case productSelected( source: Paywall.Source, screen: any IPaywallScreen, productId: String)
 
     var name: String {
       switch self {
@@ -30,12 +30,12 @@ extension Analytics.Event {
       switch self {
       case .upsellShown(let source, let screen):
         return [
-          "Screen ID": screen.value,
+          "Screen ID": screen.analytics,
           "Source": source.value,
         ]
       case .productSelected(let source, let screen, let productId):
         return [
-          "Screen ID": screen.value,
+          "Screen ID": screen.analytics,
           "Source": source.value,
           "Product ID": productId,
         ]
@@ -67,18 +67,6 @@ extension Paywall.Source: IAnalyticsValue {
 #if DEBUG
     case .debug: return "DEBUG"
 #endif
-    }
-  }
-
-}
-
-// MARK: - Paywall.Screen
-
-extension Paywall.Screen: IAnalyticsValue {
-
-  public var value: String {
-    switch self {
-    case .initial: return "Initial"
     }
   }
 
