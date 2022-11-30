@@ -83,7 +83,7 @@ final public class Instance: Cascade.AppDelegate {
     }
 
     HUD.show()
-    let vc = await Paywall.Service.shared?.paywallScreen(source: .onboarding, screen: .initial)
+    let vc = await Paywall.Service.shared?.paywallScreen(source: .onboarding, screen: Paywall.Screen.initial)
     HUD.dismiss()
     window.rootViewController = vc
     window.makeKeyAndVisible()
@@ -95,7 +95,7 @@ final public class Instance: Cascade.AppDelegate {
     await UIService.shared?.checkIDFAAccessIfNeeded()
   }
 
-  public func upsell(source: Paywall.Source, screen: Paywall.Screen, presenter: UIViewController) -> UpsellView {
+  public func upsell(source: Paywall.Source, screen: any IPaywallScreen, presenter: UIViewController) -> UpsellView {
     UpsellBuilder(config: config.ui.upsell, showCtxProvider: { [weak presenter] in
       guard let presenter = presenter else { return nil }
 

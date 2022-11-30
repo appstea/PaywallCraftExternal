@@ -101,8 +101,8 @@ extension Paywall {
     // MARK: - Public
     // MARK: - UI
 
-    func paywallScreen(source: Paywall.Source, screen: Paywall.Screen,
-                    completion: (() -> Void)? = nil) -> Paywall.ViewController {
+    func paywallScreen(source: Paywall.Source, screen: any IPaywallScreen,
+                       completion: (() -> Void)? = nil) -> Paywall.ViewController {
       let result = Paywall.InitialVC(config: config, source: source, screen: screen, onClose: { vc in
         vc.dismiss(animated: true)
         completion?()
@@ -113,8 +113,8 @@ extension Paywall {
       return result
     }
 
-    func showPaywallScreen(source: Paywall.Source, screen: Paywall.Screen, 
-                        from presenter: UIViewController, completion: (() -> Void)? = nil) {
+    func showPaywallScreen(source: Paywall.Source, screen: some IPaywallScreen,
+                           from presenter: UIViewController, completion: (() -> Void)? = nil) {
       if let current = currentPaywallScreen {
         if current.source == source,
            current.screen == screen {
@@ -123,7 +123,7 @@ extension Paywall {
 
         hideCurrentPaywallScreen(animated: true) { [weak self] in
           self?.showPaywallScreen(source: source, screen: screen,
-                               from: presenter, completion: completion)
+                                  from: presenter, completion: completion)
         }
       }
 

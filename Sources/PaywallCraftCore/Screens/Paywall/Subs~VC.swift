@@ -21,7 +21,7 @@ extension Paywall {
   open class ViewController: UIBase.ViewController {
 
     public let config: Config
-    public let screen: Screen
+    public let screen: any IPaywallScreen
     public let source: Source
 
     private var onClose: ((UIViewController) -> Void)?
@@ -34,7 +34,8 @@ extension Paywall {
 
     // MARK: - Init
 
-    public init(config: Config, source: Source, screen: Screen, onClose: ((UIViewController) -> Void)? = nil) {
+    public init(config: Config, source: Source, screen: any IPaywallScreen,
+                onClose: ((UIViewController) -> Void)? = nil) {
       self.config = config
       self.source = source
       self.screen = screen
