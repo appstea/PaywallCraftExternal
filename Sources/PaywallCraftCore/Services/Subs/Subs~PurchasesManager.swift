@@ -272,14 +272,8 @@ extension Paywall {
       }
     }
 
-    func productsList(for screen: Paywall.Screen?) -> [StoreProduct] {
-      switch screen {
-      case .initial:
-//        return products.filter { $0.productIdentifier == Paywall.Product.monthly.id }
-        return Array(products.prefix(2))
-      case .none:
-        return Array(products)
-      }
+    func productsList() -> [StoreProduct] {
+      Array(products)
     }
 
   }

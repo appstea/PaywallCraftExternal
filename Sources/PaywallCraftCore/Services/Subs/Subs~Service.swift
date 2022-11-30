@@ -183,8 +183,8 @@ extension Paywall {
       manager.hasProducts
     }
 
-    func productsList(for screen: Paywall.Screen? = nil) -> [StoreProduct] {
-      manager.productsList(for: screen)
+    func productsList() -> [StoreProduct] {
+      manager.productsList()
     }
 
     func purchase(_ product: StoreProduct, screen: Paywall.Screen, source: Paywall.Source, block: ((Bool) -> Void)? = nil) {
