@@ -1,7 +1,7 @@
 //
 //  DeferredProvider.swift
 //
-//  Created by Dzmitry Duleba on 05/11/2022.
+//  Created by dDomovoj on 05/11/2022.
 //
 
 import Foundation

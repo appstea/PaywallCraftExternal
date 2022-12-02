@@ -1,7 +1,7 @@
 //
 //  LoadableButton.swift
 //
-//  Created by Dzmitry Duleba on 08/11/2022.
+//  Created by dDomovoj on 08/11/2022.
 //
 
 import UIKit

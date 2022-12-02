@@ -41,7 +41,8 @@ extension Paywall {
     public var bgColor = Color.Main.back.color
     public var closeColor = Color.Paywall.title.color
     
-    public var image = Image(Asset.Paywall.image.image) { img -> CGSize in
+    public var image = VM.Image(Asset.Paywall.image.image)
+      .size(.computed({ img -> CGSize in
       if img.aspectRatio == 0 { return .zero }
       
       let ctx = img.ctx
@@ -67,7 +68,7 @@ extension Paywall {
       
       let w = h * img.aspectRatio
       return CGSize(width: w, height: h)
-    }
+    }))
 
     public var title = L10n.Paywall.TwoButtons.title
     public var titleColor = Color.Paywall.title.color

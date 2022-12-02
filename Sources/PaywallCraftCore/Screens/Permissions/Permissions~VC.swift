@@ -16,6 +16,7 @@ import Utils
 import Stored
 import UIBase
 import UICommon
+import PaywallCraftUI
 import PaywallCraftResources
 
 extension Stored {
@@ -42,15 +43,16 @@ extension Permissions {
       Color.Onboarding.background.color.withAlphaComponent(0),
     ]
     
-    public var image = Image(Asset.Permissions.image.image) { img -> CGSize in
-      let intent = img.ctx.uiIntent
-      if img.ctx.isPad && img.ctx.isLandscape {
-        return CGSize(width: 248.ui(intent), height: 223.ui(intent))
-      }
-      else {
-        return CGSize(width: 310.ui(intent), height: 279.ui(intent))
-      }
-    }
+    public var image = VM.Image(Asset.Permissions.image.image)
+      .size(.computed({ img -> CGSize in
+        let intent = img.ctx.uiIntent
+        if img.ctx.isPad && img.ctx.isLandscape {
+          return CGSize(width: 248.ui(intent), height: 223.ui(intent))
+        }
+        else {
+          return CGSize(width: 310.ui(intent), height: 279.ui(intent))
+        }
+      }))
     
     public var textColor = Color.Main.text.color
     public var ctaTextColor = UIColor.white
