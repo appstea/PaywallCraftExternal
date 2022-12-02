@@ -12,27 +12,8 @@ import NotificationCraftSystem
 
 public extension Config.UI {
 
-  struct Upsell {
-
-    public typealias Default = UpsellView.DefaultView.ViewModel
-    private let `default`: UpsellView.DefaultView.ViewModel?
-    private let bgColor: UIColor?
-
-    public init(bgColor: UIColor? = nil, `default`: Default? = nil) {
-      self.bgColor = bgColor
-      self.default = `default`
-    }
-
-    func applyToUpsellView(to upsellView: UpsellView) {
-      if let vm = `default` {
-        upsellView.defaultView.viewModel = vm
-      }
-      if let bgColor = bgColor {
-        upsellView.backgroundColor = bgColor
-      }
-    }
-
-  }
+  typealias Upsell = UpsellView.ViewModel
+  
 }
 
 struct UpsellBuilder {
@@ -54,7 +35,7 @@ struct UpsellBuilder {
 
   func build() -> UpsellView {
     let result = UpsellView()
-    config?.applyToUpsellView(to: result)
+    if let vm = config { result.apply(vm) }
 
     result.onClick = {
       guard let ctx = showContext() else { return }

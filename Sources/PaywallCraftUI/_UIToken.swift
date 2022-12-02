@@ -8,7 +8,7 @@ import Foundation
 
 import UIBase
 
-extension UI.Intent {
+public extension UI.Intent {
   static let paywall = _UIToken().intent
 }
 
