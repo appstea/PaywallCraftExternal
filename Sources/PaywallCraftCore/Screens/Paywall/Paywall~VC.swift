@@ -22,7 +22,7 @@ extension Paywall {
 
     public let config: Config
     public let screen: any IPaywallScreen
-    public let source: Source
+    public let source: any IPaywallSource
 
     private var onClose: ((UIViewController) -> Void)?
     private var continuation: CheckedContinuation<Void, Never>?
@@ -34,7 +34,7 @@ extension Paywall {
 
     // MARK: - Init
 
-    public init(config: Config, source: Source, screen: any IPaywallScreen,
+    public init(config: Config, source: some IPaywallSource, screen: some IPaywallScreen,
                 onClose: ((UIViewController) -> Void)? = nil) {
       self.config = config
       self.source = source
@@ -52,7 +52,7 @@ extension Paywall {
     override open func viewDidLoad() {
       super.viewDidLoad()
       Notification.Paywall.Update
-        .observe { [weak self] in self?.didUpdatePaywallStatus() }
+        .observe { [weak self] _ in self?.didUpdatePaywallStatus() }
         .bind(to: self)
       analytics?.sendPaywallEvent(.upsellShown(source: source, screen: screen))
     }

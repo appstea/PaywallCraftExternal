@@ -19,11 +19,11 @@ public extension Config.UI {
 struct UpsellBuilder {
 
   struct ShowCtx {
-    let source: Paywall.Source
+    let source: any IPaywallSource
     let screen: any IPaywallScreen
     let presenter: UIViewController
 
-    public init(source: Paywall.Source, screen: any IPaywallScreen, presenter: UIViewController) {
+    public init(source: some IPaywallSource, screen: some IPaywallScreen, presenter: UIViewController) {
       self.source = source
       self.screen = screen
       self.presenter = presenter
@@ -64,7 +64,11 @@ private extension UpsellBuilder {
 
   func addObservers(to upsellView: UpsellView) {
     [
-      Notification.Paywall.Update.observe { [weak upsellView] in self.updateUpsellIfNeeded(in: upsellView) },
+      Notification.Paywall.Update.observe { [weak upsellView] in
+        if case .status = $0 {
+          self.updateUpsellIfNeeded(in: upsellView)
+        }
+      },
       Notification.System.DidBecomeActive.observe { [weak upsellView] in self.loadUpsell(in: upsellView) },
       Notification.System.DidEnterBackground.observe { [weak upsellView] in self.removeUpsell(from: upsellView) },
       Notification.System.WillResignActive.observe { [weak upsellView] in self.removeUpsell(from: upsellView) },

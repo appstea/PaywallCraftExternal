@@ -8,6 +8,8 @@ import UIKit
 
 import Cascade
 import Stored
+import CallbacksCraft
+
 import PaywallCraftUI
 
 final public class Scene: Cascade.SceneDelegate {
@@ -45,14 +47,20 @@ final public class Instance: Cascade.AppDelegate {
   }
 
   public var isPremium: Bool { Paywall.Service.shared?.isPremium == true }
-  public var keyWindow: UIWindow? {
-    get { UIService.shared?.window }
-    set { UIService.shared?.window = newValue }
-  }
-
   public var didPassPermissions: Bool { Stored.didPassPrepermission }
+  
+  public enum Event {
+    case products
+    case status
+  }
+  public let eventsObserver = GenericCallbacks<Event, Void>()
 
   private let config: Config
+  private var keyWindow: UIWindow {
+    guard let w = UIService.shared?.window
+    else { preconditionFailure("Key window not assigned") }
+    return w
+  }
 
   // MARK: - Init
 
@@ -60,12 +68,20 @@ final public class Instance: Cascade.AppDelegate {
     self.config = config
     Analytics.Service.shared = .init(config: config)
     Paywall.Service.shared = .init(config: config)
+    super.init()
+    subscribeOnPaywallEvents()
   }
 
   // MARK: - Public
+  
+  @MainActor
+  public func assignKeyWindow(_ window: UIWindow) {
+    UIService.shared?.window = window
+  }
 
   @MainActor
-  public func showPermissions(from window: UIWindow) async {
+  public func showPermissions() async {
+    let window = keyWindow
     let vc = Permissions.ViewController()
     if let vm = config.ui.permissions {
       vc.viewModel = vm
@@ -76,31 +92,64 @@ final public class Instance: Cascade.AppDelegate {
   }
 
   @MainActor
-  public func showPaywall(from window: UIWindow) async {
+  public func showOnboardingPaywall() async {
+    let window = keyWindow
     guard let paywall = Paywall.Service.shared, !paywall.isPremium
     else {
       return
     }
 
-    HUD.show()
-    let vc = await Paywall.Service.shared?.paywallScreen(source: .onboarding, screen: Paywall.Screen.initial)
-    HUD.dismiss()
+    guard let vc = Paywall.Service.shared?.paywallScreen(
+      source: Paywall.Source.onboarding,
+      screen: Paywall.Screen.initial
+    )
+    else { return }
+    
     window.rootViewController = vc
     window.makeKeyAndVisible()
 
-    await vc?.result()
+    return await vc.result()
   }
 
   public func checkATT() async {
     await UIService.shared?.checkIDFAAccessIfNeeded()
   }
 
-  public func upsell(source: Paywall.Source, screen: any IPaywallScreen, presenter: UIViewController) -> UpsellView {
+  public func upsell(source: some IPaywallSource, screen: some IPaywallScreen,
+                     presenter: UIViewController) -> UpsellView {
     UpsellBuilder(config: config.ui.upsell, showCtxProvider: { [weak presenter] in
       guard let presenter = presenter else { return nil }
 
       return .init(source: source, screen: screen, presenter: presenter)
     }).build()
   }
+  
+  public func showPaywall(source: some IPaywallSource, screen: some IPaywallScreen,
+                          from presenter: UIViewController? = nil,
+                          completion: Paywall.Completion? = nil) {
+    Paywall.Service.shared?.showPaywall(source: source, screen: screen,
+                                        from: presenter, completion: completion)
+  }
+  
+  @MainActor
+  func paywallScreen(source: some IPaywallSource, screen: some IPaywallScreen,
+                     completion: Paywall.Completion? = nil) -> Paywall.ViewController? {
+    Paywall.Service.shared?.paywallScreen(source: source, screen: screen)
+  }
 
+}
+
+// MARK: - Private
+
+private extension Instance {
+  
+  func subscribeOnPaywallEvents() {
+    Notification.Paywall.Update.observe(on: .main) { [weak self] e in
+      switch e {
+      case .products: self?.eventsObserver(.products)
+      case .status: self?.eventsObserver(.status)
+      }
+    }.bind(to: self)
+  }
+  
 }
