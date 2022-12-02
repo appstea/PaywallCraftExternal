@@ -59,7 +59,13 @@ extension Notification {
 
   enum Paywall {
 
-    enum Update: INotification { public typealias Data = Void }
+    enum Update: INotification {
+      typealias Data = Event
+      enum Event {
+        case status
+        case products
+      }
+    }
 
   }
 
@@ -152,22 +158,22 @@ extension Paywall {
     }
 
     public typealias PaywallCompletion = () -> Void
-    public func showPaywall(source: Paywall.Source, screen: any IPaywallScreen,
+    public func showPaywall(source: some IPaywallSource, screen: some IPaywallScreen,
                             from presenter: UIViewController? = nil,
                             completion: PaywallCompletion? = nil) {
       guard let sessionIdx = SessionService.current?.currentSessionIdx else { return }
 
       DispatchQueue.main.async { [weak self] in
         let context = Context(sessionNumber: sessionIdx)
-        self?._showPaywallScreen(source: source, screen: screen, context: context) {
+        self?._showPaywallScreen(source: source, screen: screen, context: context, from: presenter) {
           completion?()
         }
       }
     }
 
     @MainActor
-    func paywallScreen(source: Paywall.Source, screen: any IPaywallScreen,
-                    completion: PaywallCompletion? = nil) async -> Paywall.ViewController {
+    func paywallScreen(source: some IPaywallSource, screen: some IPaywallScreen,
+                       completion: PaywallCompletion? = nil) -> Paywall.ViewController {
       _paywallScreenViewController(source: source, screen: screen, completion: completion)
     }
 
@@ -187,8 +193,8 @@ extension Paywall {
       manager.productsList()
     }
 
-    func purchase(_ product: StoreProduct, screen: any IPaywallScreen,
-                  source: Paywall.Source, block: ((Bool) -> Void)? = nil) {
+    func purchase(_ product: StoreProduct, screen: some IPaywallScreen,
+                  source: some IPaywallSource, block: ((Bool) -> Void)? = nil) {
       manager.purchase(product: product, source: source) { result in
         switch result {
         case .purchased: block?(true)
@@ -223,7 +229,7 @@ private extension Paywall.Service {
 //      .bind(to: self)
   }
 
-  func _showPaywallScreen(source: Paywall.Source, screen: any IPaywallScreen, context: Paywall.Context,
+  func _showPaywallScreen(source: some IPaywallSource, screen: some IPaywallScreen, context: Paywall.Context,
                           from presenter: UIViewController? = nil, completion: (() -> Void)? = nil) {
     DispatchQueue.main.async { [weak self] in
       guard let self = self, !self.isPremium,
@@ -234,7 +240,7 @@ private extension Paywall.Service {
     }
   }
 
-  func _paywallScreenViewController(source: Paywall.Source, screen: any IPaywallScreen,
+  func _paywallScreenViewController(source: some IPaywallSource, screen: some IPaywallScreen,
                                  completion: PaywallCompletion? = nil) -> Paywall.ViewController {
     manager.paywallScreen(source: source, screen: screen, completion: completion)
   }

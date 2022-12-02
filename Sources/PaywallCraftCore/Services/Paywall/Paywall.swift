@@ -39,20 +39,6 @@ extension Stored {
 //
 //}
 
-// MARK: - Source
-
-public extension Paywall {
-
-  enum Source: Equatable {
-    case onboarding
-    case bottomUpsell
-#if DEBUG
-    case debug
-#endif
-  }
-
-}
-
 // MARK: - Context
 
 public extension Paywall {

@@ -16,10 +16,12 @@ import RevenueCat
 import Stored
 
 extension Paywall {
+  
+  public typealias Completion = () -> Void
 
   final class PurchasesManager: NSObject {
-
-    typealias PaywallCompletion = () -> Void
+    
+    typealias PaywallCompletion = Paywall.Completion
 
     struct RCSetup {
 //      let apiKey: String
@@ -55,13 +57,13 @@ extension Paywall {
     private let transactionsObserver = TransactionsObserver()
 
     private var products: Set<StoreProduct> = [] {
-      didSet { Notification.Paywall.Update.post() }
+      didSet { Notification.Paywall.Update.post(.products) }
     }
 
     private var premium: Bool = false {
       didSet {
         if oldValue != premium {
-          Notification.Paywall.Update.post()
+          Notification.Paywall.Update.post(.status)
 
           Stored.isPremium = premium
         }
@@ -101,7 +103,7 @@ extension Paywall {
     // MARK: - Public
     // MARK: - UI
 
-    func paywallScreen(source: Paywall.Source, screen: any IPaywallScreen,
+    func paywallScreen(source: some IPaywallSource, screen: some IPaywallScreen,
                        completion: (() -> Void)? = nil) -> Paywall.ViewController {
       let result = Paywall.InitialVC(config: config, source: source, screen: screen, onClose: { vc in
         vc.dismiss(animated: true)
@@ -113,7 +115,7 @@ extension Paywall {
       return result
     }
 
-    func showPaywallScreen(source: Paywall.Source, screen: some IPaywallScreen,
+    func showPaywallScreen(source: some IPaywallSource, screen: some IPaywallScreen,
                            from presenter: UIViewController, completion: (() -> Void)? = nil) {
       if let current = currentPaywallScreen {
         if current.source == source,
@@ -213,7 +215,7 @@ extension Paywall {
       case deferred
       case unknown
     }
-    func purchase(product: StoreProduct, source: Paywall.Source, completion: ((PurchaseResult) -> Void)?) {
+    func purchase(product: StoreProduct, source: some IPaywallSource, completion: ((PurchaseResult) -> Void)?) {
       HUD.show()
       Purchases.shared.purchase(product: product) { [weak self] transaction, customerInfo, error, _ in
         defer {
@@ -320,7 +322,7 @@ private extension Paywall.PurchasesManager {
       }
       debugPrint("[DEBUG] Products: \(self.products)")
       self.isLoadingProducts = false
-      Notification.Paywall.Update.post()
+      Notification.Paywall.Update.post(.products)
     }
   }
 
