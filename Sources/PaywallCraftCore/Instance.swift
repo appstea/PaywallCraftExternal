@@ -108,33 +108,37 @@ final public class Instance: Cascade.AppDelegate {
     window.rootViewController = vc
     window.makeKeyAndVisible()
 
-    return await vc.result()
+    for await _ in vc.events() { }
   }
 
+  @MainActor
   public func checkATT() async {
     await UIService.shared?.checkIDFAAccessIfNeeded()
   }
+  
+  // MARK: Paywall screens
 
+  @MainActor
   public func upsell(source: some IPaywallSource, screen: some IPaywallScreen,
-                     presenter: UIViewController) -> UpsellView {
-    UpsellBuilder(config: config.ui.upsell, showCtxProvider: { [weak presenter] in
-      guard let presenter = presenter else { return nil }
-
-      return .init(source: source, screen: screen, presenter: presenter)
-    }).build()
+                     from presenter: @escaping @autoclosure () -> UIViewController,
+                     onEvents: Paywall.OnEvents? = nil) -> UpsellView {
+    UpsellBuilder(config: config.ui.upsell) {
+      UpsellBuilder.ShowCtx(source: source, screen: screen,
+                            presenter: presenter(), onEvents: onEvents)
+    }.build()
   }
   
   public func showPaywall(source: some IPaywallSource, screen: some IPaywallScreen,
                           from presenter: UIViewController? = nil,
-                          completion: Paywall.Completion? = nil) {
+                          onEvents: Paywall.OnEvents? = nil) {
     Paywall.Service.shared?.showPaywall(source: source, screen: screen,
-                                        from: presenter, completion: completion)
+                                        from: presenter, onEvents: onEvents)
   }
   
   @MainActor
-  func paywallScreen(source: some IPaywallSource, screen: some IPaywallScreen,
-                     completion: Paywall.Completion? = nil) -> Paywall.ViewController? {
-    Paywall.Service.shared?.paywallScreen(source: source, screen: screen)
+  public func paywallScreen(source: some IPaywallSource, screen: some IPaywallScreen,
+                            onEvents: Paywall.OnEvents? = nil) -> Paywall.ViewController? {
+    Paywall.Service.shared?.paywallScreen(source: source, screen: screen, onEvents: onEvents)
   }
 
 }

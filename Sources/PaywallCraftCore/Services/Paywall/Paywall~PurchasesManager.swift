@@ -16,12 +16,8 @@ import RevenueCat
 import Stored
 
 extension Paywall {
-  
-  public typealias Completion = () -> Void
 
   final class PurchasesManager: NSObject {
-    
-    typealias PaywallCompletion = Paywall.Completion
 
     struct RCSetup {
 //      let apiKey: String
@@ -101,22 +97,30 @@ extension Paywall {
     }
 
     // MARK: - Public
+    
+    func createEvent() -> Paywall.Event { .init(isPremium: isPremium) }
+    
     // MARK: - UI
 
+    @MainActor
     func paywallScreen(source: some IPaywallSource, screen: some IPaywallScreen,
-                       completion: (() -> Void)? = nil) -> Paywall.ViewController {
-      let result = Paywall.InitialVC(config: config, source: source, screen: screen, onClose: { vc in
-        vc.dismiss(animated: true)
-        completion?()
-      })
+                       onEvents: Paywall.OnEvents? = nil) -> Paywall.ViewController {
+      var result: Paywall.InitialVC!
+      result = Paywall.InitialVC(config: config, source: source, screen: screen) { e in
+        if e.isFinal {
+          result.dismiss(animated: true)
+        }
+        onEvents?(e)
+      }
       if let vm = config.ui.paywall {
         result.viewModel = vm
       }
       return result
     }
 
+    @MainActor
     func showPaywallScreen(source: some IPaywallSource, screen: some IPaywallScreen,
-                           from presenter: UIViewController, completion: (() -> Void)? = nil) {
+                           from presenter: UIViewController, onEvents: Paywall.OnEvents? = nil) {
       if let current = currentPaywallScreen {
         if current.source == source,
            current.screen == screen {
@@ -125,13 +129,13 @@ extension Paywall {
 
         hideCurrentPaywallScreen(animated: true) { [weak self] in
           self?.showPaywallScreen(source: source, screen: screen,
-                                  from: presenter, completion: completion)
+                                  from: presenter, onEvents: onEvents)
         }
       }
 
       let paywallVC = paywallScreen(source: source, screen: screen) { [weak self] in
         self?.currentPaywallScreen = nil
-        completion?()
+        onEvents?($0)
       }
 
       currentPaywallScreen = paywallVC
@@ -144,6 +148,10 @@ extension Paywall {
       currentPaywallScreen?.dismiss(animated: animated) { [weak self] in
         if current == self?.currentPaywallScreen {
           self?.currentPaywallScreen = nil
+        }
+        
+        if let e = self?.createEvent() {
+          current?.handleEventAndCloseIfFinal(e)
         }
         completion?()
       }
@@ -264,9 +272,10 @@ extension Paywall {
           return
         }
 
-        if self.products.contains(where: { customInfo?.entitlements[$0.productIdentifier]?.isActive == true }) {
+        let restored = self.products.filter { customInfo?.entitlements[$0.productIdentifier]?.isActive == true }
+        if !restored.isEmpty {
           self.premium = true
-          block?(.success)
+          block?(.products(Set(restored.map(\.productIdentifier))))
         }
         else {
           block?(.noProducts)

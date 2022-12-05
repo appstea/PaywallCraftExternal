@@ -18,7 +18,7 @@ import Utils
 import NotificationCraft
 
 public enum RestoreResponseType {
-  case success
+  case products(Set<String>)
   case noProducts
   case error
 }
@@ -136,6 +136,8 @@ extension Paywall {
     }
 
     // MARK: - Public
+    
+    func createEvent() -> Paywall.Event { manager.createEvent() }
 
     func updateAttribute(_ attribute: Attribute) {
       let purchases = Purchases.shared
@@ -157,24 +159,27 @@ extension Paywall {
       }
     }
 
-    public typealias PaywallCompletion = () -> Void
-    public func showPaywall(source: some IPaywallSource, screen: some IPaywallScreen,
-                            from presenter: UIViewController? = nil,
-                            completion: PaywallCompletion? = nil) {
+    /// main thread-trampolined
+    func showPaywall(source: some IPaywallSource, screen: some IPaywallScreen,
+                     from presenter: UIViewController? = nil,
+                     onEvents: Paywall.OnEvents? = nil) {
       guard let sessionIdx = SessionService.current?.currentSessionIdx else { return }
-
-      DispatchQueue.main.async { [weak self] in
-        let context = Context(sessionNumber: sessionIdx)
-        self?._showPaywallScreen(source: source, screen: screen, context: context, from: presenter) {
-          completion?()
+      guard Thread.isMainThread else {
+        DispatchQueue.main.async { [weak self] in
+          self?.showPaywall(source: source, screen: screen, from: presenter, onEvents: onEvents)
         }
+        return
       }
+      
+      let context = Context(sessionNumber: sessionIdx)
+      _showPaywallScreen(source: source, screen: screen, context: context,
+                         from: presenter, onEvents: onEvents)
     }
 
     @MainActor
     func paywallScreen(source: some IPaywallSource, screen: some IPaywallScreen,
-                       completion: PaywallCompletion? = nil) -> Paywall.ViewController {
-      _paywallScreenViewController(source: source, screen: screen, completion: completion)
+                       onEvents: Paywall.OnEvents? = nil) -> Paywall.ViewController {
+      _paywallScreenViewController(source: source, screen: screen, onEvents: onEvents)
     }
 
     func sync() {
@@ -229,20 +234,21 @@ private extension Paywall.Service {
 //      .bind(to: self)
   }
 
-  func _showPaywallScreen(source: some IPaywallSource, screen: some IPaywallScreen, context: Paywall.Context,
-                          from presenter: UIViewController? = nil, completion: (() -> Void)? = nil) {
-    DispatchQueue.main.async { [weak self] in
-      guard let self = self, !self.isPremium,
+  @MainActor
+  func _showPaywallScreen(source: some IPaywallSource, screen: some IPaywallScreen,
+                          context: Paywall.Context, from presenter: UIViewController? = nil,
+                          onEvents: Paywall.OnEvents? = nil) {
+      guard !isPremium,
             let presenter = presenter ?? UIService.shared?.presenter
       else { return }
 
-      self.manager.showPaywallScreen(source: source, screen: screen, from: presenter)
-    }
+      manager.showPaywallScreen(source: source, screen: screen, from: presenter, onEvents: onEvents)
   }
 
+  @MainActor
   func _paywallScreenViewController(source: some IPaywallSource, screen: some IPaywallScreen,
-                                 completion: PaywallCompletion? = nil) -> Paywall.ViewController {
-    manager.paywallScreen(source: source, screen: screen, completion: completion)
+                                    onEvents: Paywall.OnEvents? = nil) -> Paywall.ViewController {
+    manager.paywallScreen(source: source, screen: screen, onEvents: onEvents)
   }
 
 }

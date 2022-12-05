@@ -24,22 +24,27 @@ extension Paywall {
     public let screen: any IPaywallScreen
     public let source: any IPaywallSource
 
-    private var onClose: ((UIViewController) -> Void)?
-    private var continuation: CheckedContinuation<Void, Never>?
+    private var onEvent: Paywall.OnEvents?
+    private var streamContinuation: Paywall.EventStream.Continuation?
 
     // MARK: - Readonly
 
     var analytics: Analytics.Service? { .shared }
-    var paywall: Paywall.Service? { .shared }
+    var paywall: Paywall.Service {
+      guard let instance = Paywall.Service.shared else {
+        preconditionFailure("Must have paywall service")
+      }
+      return instance
+    }
 
     // MARK: - Init
 
     public init(config: Config, source: some IPaywallSource, screen: some IPaywallScreen,
-                onClose: ((UIViewController) -> Void)? = nil) {
+                onEvent: Paywall.OnEvents? = nil) {
       self.config = config
       self.source = source
       self.screen = screen
-      self.onClose = onClose
+      self.onEvent = onEvent
       super.init(nibName: nil, bundle: nil)
     }
 
@@ -61,35 +66,43 @@ extension Paywall {
 
     // MARK: - Public
 
+    public func createEvent() -> Paywall.Event { paywall.createEvent() }
+    
     @MainActor
-    open func result() async {
-      await withCheckedContinuation { c in
-        continuation = c
-      }
+    open func events() -> Paywall.EventStream {
+      AsyncStream { [weak self] in self?.streamContinuation = $0 }
     }
-
-    open func close() {
-      onClose?(self)
-      continuation?.resume(returning: ())
-      continuation = nil
+    
+    open func handleEventAndCloseIfFinal(_ e: Paywall.Event) {
+      onEvent?(e)
+      streamContinuation?.yield(e)
+      if e.isFinal {
+        streamContinuation?.finish()
+        streamContinuation = nil
+      }
     }
 
     public func purchase(_ product: StoreProduct?) {
-      if let product = product {
-        analytics?.sendPaywallEvent(
-          .productSelected(source: source, screen: screen, productId: product.productIdentifier))
-
-        paywall?.purchase(product, screen: screen, source: source) { [weak self] success in
-          if success {
-            self?.close()
-          }
-          else {
-            self?.checkInternetError()
-          }
-        }
-      }
+      guard let product = product
       else {
-        checkInternetError()
+        showErrorAlert(.productNotSpecified)
+        return
+      }
+      
+      analytics?.sendPaywallEvent(
+        .productSelected(source: source, screen: screen, productId: product.productIdentifier))
+      
+      paywall.purchase(product, screen: screen, source: source) { [weak self] success in
+        guard let self else { return }
+        
+        var e = self.createEvent()
+        if success {
+          e.didPurchaseProduct(with: product.productIdentifier)
+        }
+        else {
+          e.didReceiveError(.noInternet)
+        }
+        self.handleEventAndCloseIfFinal(e)
       }
     }
 
@@ -110,15 +123,18 @@ extension Paywall {
     }
 
     public func restorePurchases() {
-      paywall?.restore { [weak self] success in
-        switch success {
-        case .success:
-          self?.close()
-        case .error:
-          self?.checkInternetError()
-        case .noProducts:
-          UIService.shared?.showAlert(title: "", message: L10n.Settings.RestoreFail.subtitle)
+      paywall.restore { [weak self] result in
+        guard let self else { return }
+        
+        var e = self.createEvent()
+        switch result {
+        case .products(let ids):
+          ids.forEach { e.didRestoreProduct(with: $0) }
+        case .error, .noProducts:
+          e.didReceiveError(.restorationFailed)
+          self.showErrorAlert(.restorationFailed)
         }
+        self.handleEventAndCloseIfFinal(e)
       }
     }
 
@@ -139,12 +155,19 @@ extension Paywall.ViewController: SFSafariViewControllerDelegate {
 
 private extension Paywall.ViewController {
 
-  func checkInternetError() {
-    if UIService.shared?.checkInternetConnection() == true {
-      UIService.shared?.showAlert(title: "", message: L10n.Settings.RestoreFail.subtitle)
-    }
-    else {
+  // TODO: add more error messages?
+  @MainActor
+  func showErrorAlert(_ error: Paywall.Error) {
+    switch error {
+    case .noInternet where UIService.shared?.checkInternetConnection() == false :
       UIService.shared?.showAlert(title: L10n.NoInternet.title, message: L10n.NoInternet.subtitle)
+    case .productNotSpecified:
+      UIService.shared?.showAlert(title: "Failed", message: "Products not specified. Try later")
+    case .restorationFailed:
+      UIService.shared?.showAlert(title: L10n.Settings.Restore.title,
+                                  message: L10n.Settings.RestoreFail.subtitle)
+    default:
+      UIService.shared?.showAlert(title: "Oops...", message: "Something happened. Try later")
     }
   }
 
