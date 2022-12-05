@@ -22,11 +22,14 @@ struct UpsellBuilder {
     let source: any IPaywallSource
     let screen: any IPaywallScreen
     let presenter: UIViewController
+    let onEvents: Paywall.OnEvents?
 
-    public init(source: some IPaywallSource, screen: some IPaywallScreen, presenter: UIViewController) {
+    public init(source: some IPaywallSource, screen: some IPaywallScreen,
+                presenter: UIViewController, onEvents: Paywall.OnEvents?) {
       self.source = source
       self.screen = screen
       self.presenter = presenter
+      self.onEvents = onEvents
     }
   }
 
@@ -40,8 +43,10 @@ struct UpsellBuilder {
     result.onClick = {
       guard let ctx = showContext() else { return }
 
-//      Paywall.Service.shared?.showPaywall(source: .bottomUpsell, intent: .normal, from: self)
-      Paywall.Service.shared?.showPaywall(source: ctx.source, screen: ctx.screen, from: ctx.presenter)
+      Paywall.Service.shared?.showPaywall(
+        source: ctx.source, screen: ctx.screen,
+        from: ctx.presenter, onEvents: ctx.onEvents
+      )
     }
 
     addObservers(to: result)

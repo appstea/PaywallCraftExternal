@@ -288,7 +288,13 @@ extension Paywall {
       trialButton.addAction { [weak self] _ in self?.purchase(self?.trialProduct) }
       instantButton.addAction { [weak self] _ in self?.purchase(self?.instantProduct) }
 
-      closeButton.addAction { [weak self] _ in self?.close() }
+      closeButton.addAction { [weak self] _ in
+        guard let self else { return }
+        
+        var e = self.createEvent()
+        e.makeFinal()
+        self.handleEventAndCloseIfFinal(e)
+      }
 
       termsButton.addAction { [weak self] _ in self?.showTerms() }
       privacyButton.addAction { [weak self] _ in self?.showPolicy() }
@@ -367,17 +373,17 @@ private extension Paywall.InitialVC {
     var changed = false
 
 //    let trial = imageType == .additional ? paywall?.productsList(for: .additionTrial).first : paywall?.productsList(for: .none).first
-    var products = paywall?.productsList()
+    var products = paywall.productsList()
     
-    let trial = products?.first(where: { $0.introductoryDiscount?.type == .introductory })
-    if let trial, let idx = products?.firstIndex(of: trial) {
-      products?.remove(at: idx)
+    let trial = products.first(where: { $0.introductoryDiscount?.type == .introductory })
+    if let trial, let idx = products.firstIndex(of: trial) {
+      products.remove(at: idx)
     }
 
     changed = changed || trial != trialProduct
     trialProduct = trial
 
-    if let instProduct = products?.first(where: { $0.introductoryDiscount == nil }) {
+    if let instProduct = products.first(where: { $0.introductoryDiscount == nil }) {
 //      let instant = imageType == .additional ? paywall?.productsList(for: .additionInstant).first : instProduct
       let instant = instProduct
       changed = changed || instant != instantProduct
