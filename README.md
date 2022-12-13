@@ -2,9 +2,7 @@
 
 ## Common
 
-* Give repository read permissions to your github account
-* Add dependency https://github.com/appstea/PaywallCraft.git to your target via SPM
-* Add github token to xcode account to let xcode fetch package from private repo via SPM
+* Add dependency git@github.com:appstea/PaywallCraft.git to your target via SPM
 
 ## Project
 
@@ -53,10 +51,62 @@ enum Paywall {
 fileprivate extension Config.UI.Upsell {
 
   static func custom() -> Self? {
-    var `default` = Config.UI.Upsell.Default()
-    `default`.title = "TexT"
-    return Self(default: `default`)
-    // return nil
+    Self()
+    // Adjusting default upsell banner
+      .default { defaultUpsell in
+        defaultUpsell
+          // default upsell banner background
+          .background { defaultUpsellBackground in
+            defaultUpsellBackground
+              .cornerRadius(0)
+              .backgroundColor(.blue)
+          }
+          // default upsell banner icon 
+          .icon { defaultUpsellIcon in
+            defaultUpsellIcon
+              .size(.value(CGSize(width: 32, height: 32)))
+              .view { defaultUpsellIconView in
+                defaultUpsellIconView
+                  .backgroundColor(.clear)
+                  .cornerRadius(16)
+              }
+          }
+          // default upsell banner title
+          .title { defaultUpsellTitle in
+            defaultUpsellTitle.text(
+              PaywallCraftUI.VM.Text("Ads free and premimum features")
+                .font(.boldSystemFont(ofSize: 16))
+                .textColor(.green)
+            )
+            .adjustsFontSize(.minScale(0.8))
+            .numberOfLines(2)
+          }
+          // default upsell banner cta button
+          .cta { cta in
+            cta
+              .height(30)
+              .text { ctaText in
+                ctaText
+                  .string("Custom Text")
+                  .textColor(.red)
+                  .font(.systemFont(ofSize: 20))
+              }
+              .textPadding(UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 16))
+              .background { ctaBackground in
+                ctaBackground
+                  .backgroundColor(.blue)
+                  .cornerRadius(12)
+              }
+          }
+          // default upsell banner most outer padding (currently horizontal only)
+          .contentPadding(UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0))
+          // default upsell banner title padding (currently horizontal only)
+          .titlePadding(UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10))
+      }
+      // upsell banner background
+      .background {
+        $0.backgroundColor(.red)
+      }
   }
 
 }
@@ -76,7 +126,7 @@ fileprivate extension Config.UI.Permissions {
 
 // MARK: - Paywallcription.Custom
 
-fileprivate extension Config.UI.Paywallcription {
+fileprivate extension Config.UI.Paywall {
 
   static func custom() -> Self? {
     var result = Self()
@@ -198,21 +248,21 @@ To make paywallcription screens work as intended (to be shown from upsell etc) y
 ```
 import PaywallCraftCore
 
-Paywall.core.keyWindow = window
+Paywall.core.assignKeyWindow(window)
 ```
 
 * To show Permissions screen:
 ```
 import PaywallCraftCore
 
-await Paywall.core.showPermissions(from: window)
+await Paywall.core.showPermissions()
 ```
 
-* To show Paywallcription screen:
+* To show Onboarding Paywallcription screen:
 ```
 import PaywallCraftCore
 
-await Paywall.core.showPaywall(from: window)
+await Paywall.core.showOnboardingPaywall()
 ```
 
 * To perform ATT check:
@@ -220,4 +270,20 @@ await Paywall.core.showPaywall(from: window)
 import PaywallCraftCore
 
 await Paywall.core.checkATT()
+```
+
+* To create custom Paywall Source or Screen entitiy:
+```
+struct CustomSource: IPaywallSource {
+  var analytics: IAnalyticsValue { "Custom Source Name".analytics() }
+}
+
+struct CustomScreen: IPaywallScreen {
+  var analytics: IAnalyticsValue { "Custom Screen Name".analytics() }
+}
+```
+
+* To use custom screens and/or sources it's possible to make:
+```
+Paywall.core.showPaywall(source: CustomSource(), screen: CustomScreen())
 ```
