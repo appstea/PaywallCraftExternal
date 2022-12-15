@@ -38,7 +38,7 @@ enum Paywall {
       ),
       ui: .init(
         permissions: .custom(),
-        paywallcription: .custom(),
+        paywall: .custom(),
         upsell: .custom()
       )
     )
@@ -124,7 +124,7 @@ fileprivate extension Config.UI.Permissions {
 
 }
 
-// MARK: - Paywallcription.Custom
+// MARK: - Paywall.Custom
 
 fileprivate extension Config.UI.Paywall {
 
@@ -244,7 +244,7 @@ class ViewController: UIViewController {
 }
 ```
 
-To make paywallcription screens work as intended (to be shown from upsell etc) you need to assign keyWindow to SDK somewhere in code:
+To make paywall screens work as intended (to be shown from upsell etc) you need to assign keyWindow to SDK somewhere in code:
 ```
 import PaywallCraftCore
 
@@ -258,7 +258,7 @@ import PaywallCraftCore
 await Paywall.core.showPermissions()
 ```
 
-* To show Onboarding Paywallcription screen:
+* To show Onboarding Paywall screen:
 ```
 import PaywallCraftCore
 
