@@ -210,7 +210,12 @@ import PaywallCraftCore
 
 class ViewController: UIViewController {
 
-  private lazy var upsellView = Paywall.core.upsell(source: .bottomUpsell, intent: .normal, presenter: self)
+  private lazy var bannerView = Paywall.core.upsell(
+    source: PaywallCraftCore.Paywall.Source.bottomUpsell,
+    screen: PaywallCraftCore.Paywall.Screen.initial,
+    from: self,
+    onEvents: { [weak self] in print($0) }
+  )
 
   // MARK: - Lifecycle
 
@@ -274,6 +279,9 @@ await Paywall.core.checkATT()
 
 * To create custom Paywall Source or Screen entitiy:
 ```
+import PaywallCraftCore
+import AnalyticsCraft
+  
 struct CustomSource: IPaywallSource {
   var analytics: IAnalyticsValue { "Custom Source Name".analytics() }
 }
