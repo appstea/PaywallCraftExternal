@@ -1,6 +1,5 @@
 //
 //  Permissions~VC.swift
-//  PaywallTemplate
 //
 //  Created by dDomovoj on 6/9/22.
 //

@@ -1,6 +1,5 @@
 //
 //  Paywall.swift
-//  PaywallTemplate
 //
 //  Created by dDomovoj on 6/14/22.
 //

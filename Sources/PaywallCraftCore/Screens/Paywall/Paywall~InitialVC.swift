@@ -1,6 +1,5 @@
 //
 //  Paywall~TwoButtonsVC.swift
-//  PaywallTemplate
 //
 //  Created by dDomovoj on 6/9/22.
 //
@@ -42,33 +41,33 @@ extension Paywall {
     public var closeColor = Color.Paywall.title.color
     
     public var image = VM.Image(Asset.Paywall.image.image)
-      .size(.computed({ img -> CGSize in
-      if img.aspectRatio == 0 { return .zero }
-      
-      let ctx = img.ctx
-      let h: CGFloat
-      switch (ctx.isPad, ctx.isLandscape) {
-      case (_, true): // both, ladscape
-        let t = (img.containerSize.height / 768.ui(.paywall))
-          .normalized(by: 0.5498046875...0.931640625)
-        h = min(
-          img.containerSize.width / img.aspectRatio * 0.8,
-          img.containerSize.height * .lerp(0.3, 0.6, t)
-        )
-      case (true, _): // pad, portrait
-        let t = img.containerSize.height / 1024.ui(.paywall)
-          .normalized(by: 0.4908424908424908...0.9494505494505494)
-        h = min(
-          768.ui(ctx.uiIntent) / img.aspectRatio * 0.8,
-          img.containerSize.height * .lerp(0.4, 0.8, t)
-        )
-      case (false, _): // phone, portrait
-        h = 375.ui(ctx.uiIntent) / img.aspectRatio * 0.8
-      }
-      
-      let w = h * img.aspectRatio
-      return CGSize(width: w, height: h)
-    }))
+//      .size(.computed({ img -> CGSize in
+//      if img.aspectRatio == 0 { return .zero }
+//
+//      let ctx = img.ctx
+//      let h: CGFloat
+//      switch (ctx.isPad, ctx.isLandscape) {
+//      case (_, true): // both, ladscape
+//        let t = (img.containerSize.height / 768.ui(.paywall))
+//          .normalized(by: 0.5498046875...0.931640625)
+//        h = min(
+//          img.containerSize.width / img.aspectRatio * 0.8,
+//          img.containerSize.height * .lerp(0.3, 0.6, t)
+//        )
+//      case (true, _): // pad, portrait
+//        let t = img.containerSize.height / 1024.ui(.paywall)
+//          .normalized(by: 0.4908424908424908...0.9494505494505494)
+//        h = min(
+//          768.ui(ctx.uiIntent) / img.aspectRatio * 0.8,
+//          img.containerSize.height * .lerp(0.4, 0.8, t)
+//        )
+//      case (false, _): // phone, portrait
+//        h = 375.ui(ctx.uiIntent) / img.aspectRatio * 0.8
+//      }
+//
+//      let w = h * img.aspectRatio
+//      return CGSize(width: w, height: h)
+//    }))
 
     public var title = L10n.Paywall.TwoButtons.title
     public var titleColor = Color.Paywall.title.color
@@ -220,12 +219,12 @@ extension Paywall {
     fileprivate let bgView = UICommon.GradientView { $0.direction = .down }
     fileprivate let imageView = UIBase.ImageView { $0.contentMode = .scaleAspectFit }
 
-    private var image: VStackView.Component {
-      imageView
-        .vComponent
-        .skipLayout()
-        .height(.fixed(viewModel.image.calculateSize().height))
-    }
+//    private var image: VStackView.Component {
+//      imageView
+//        .vComponent
+//        .skipLayout()
+//        .height(.fixed(viewModel.image.calculateSize().height))
+//    }
 
     fileprivate let titleLabel = UIBase.Label {
       $0.setDynamicFont(font: .systemFont(ofSize: 40.ui(.paywall), weight: .bold))
@@ -354,11 +353,20 @@ extension Paywall {
       reloadUI()
       textLabel.frame.size.height += vStackView.spacing(after: textLabel.vComponent) * 0.8
 
-      imageView.pin.hCenter()
-//        .width(isPortrait && isMap ? view.bounds.width : vStackView.bounds.width)
-        .width(vStackView.bounds.width)
-        .top(to: vStackView.edge.top).marginTop(vStackView.spacing(before: image))
-        .height(vStackView.height(of: image))
+//      imageView.pin.hCenter()
+////        .width(isPortrait && isMap ? view.bounds.width : vStackView.bounds.width)
+//        .width(vStackView.bounds.width)
+//        .top(to: vStackView.edge.top).marginTop(vStackView.spacing(before: image))
+//        .height(vStackView.height(of: image))
+      
+      let imageMinY = safeArea.top
+      let imageMaxY = vStackView.spacing(before: titleLabel.vComponent)
+      let imageCenterY = (imageMinY + imageMaxY) * 0.5
+      let imageMaxHeight = imageMaxY - imageMinY
+      let imageMaxWidth = contentFitWidth
+      let imageSize = min(imageMaxHeight, imageMaxWidth)
+      imageView.pin.size(imageSize).hCenter()
+        .vCenter(to: contentView.edge.top).marginTop(imageCenterY)
     }
 
   }
@@ -395,18 +403,11 @@ private extension Paywall.InitialVC {
 
   func reloadUI() {
     vStackView.reload {
-//      if isPad && isMap && isPortrait {
-//        44.fixed
-//      }
-//      else {
-        6.floating
-//      }
-      image
-      24.floating
+      311.floating
       titleLabel.vComponent
-      8.floating
+      16.floating
       subtitleLabel.vComponent
-      20.floating
+      24.floating
       textLabel.vComponent
       40.floating
       trialButton.vComponent
@@ -418,8 +419,34 @@ private extension Paywall.InitialVC {
         .height(.fixed(Const.ctaButtonSize.height))
         .width(.fixed(Const.ctaButtonSize.width))
         .alignment(.center)
-      40.floating
+      89.floating
     }
+//    vStackView.reload {
+////      if isPad && isMap && isPortrait {
+////        44.fixed
+////      }
+////      else {
+//        6.floating
+////      }
+//      image
+//      24.floating
+//      titleLabel.vComponent
+//      8.floating
+//      subtitleLabel.vComponent
+//      20.floating
+//      textLabel.vComponent
+//      40.floating
+//      trialButton.vComponent
+//        .height(.fixed(Const.ctaButtonSize.height))
+//        .width(.fixed(Const.ctaButtonSize.width))
+//        .alignment(.center)
+//      16.floating
+//      instantButton.vComponent
+//        .height(.fixed(Const.ctaButtonSize.height))
+//        .width(.fixed(Const.ctaButtonSize.width))
+//        .alignment(.center)
+//      40.floating
+//    }
   }
 
 }

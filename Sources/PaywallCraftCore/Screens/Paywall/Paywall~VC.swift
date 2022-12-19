@@ -1,6 +1,5 @@
 //
 //  Paywall~VC.swift
-//  PaywallTemplate
 //
 //  Created by dDomovoj on 6/9/22.
 //
@@ -64,9 +63,11 @@ extension Paywall {
 
     open func didUpdatePaywallStatus() { }
 
+    // MARK: - Internal
+    
+    func createEvent() -> Paywall.Event { paywall.createEvent() }
+    
     // MARK: - Public
-
-    public func createEvent() -> Paywall.Event { paywall.createEvent() }
     
     @MainActor
     open func events() -> Paywall.EventStream {
