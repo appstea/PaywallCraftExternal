@@ -1,6 +1,5 @@
 //
 //  Paywall~PurchasesManager.swift
-//  PaywallTemplate
 //
 //  Created by dDomovoj on 6/15/22.
 //
