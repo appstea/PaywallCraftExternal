@@ -67,6 +67,17 @@ extension Permissions {
         case locationWhenInUse
         case photos
         case motion
+          
+        var isAvailable: Bool {
+#if targetEnvironment(macCatalyst)
+          switch self {
+          case .motion: return false
+          default: return true
+          }
+#else
+          return true
+#endif
+        }
       }
       public enum Status: Equatable {
         case authorized
@@ -88,11 +99,13 @@ extension Permissions {
       Permission.Defaults.motion,
     ]
     fileprivate var resolvedPermissions: [Permission] {
-      permissions.sorted { lhs, rhs in
-        if lhs.type.isAny(of: .locationAlways, .locationWhenInUse) { return false }
-        if rhs.type.isAny(of: .locationAlways, .locationWhenInUse) { return true }
-        return false
-      }
+      permissions
+        .filter { $0.type.isAvailable }
+        .sorted { lhs, rhs in
+          if lhs.type.isAny(of: .locationAlways, .locationWhenInUse) { return false }
+          if rhs.type.isAny(of: .locationAlways, .locationWhenInUse) { return true }
+          return false
+        }
     }
     public var cta = L10n.Permissions.Button.continue
     
