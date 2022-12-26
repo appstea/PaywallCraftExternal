@@ -12,6 +12,13 @@ import CallbacksCraft
 
 import PaywallCraftUI
 
+#if targetEnvironment(macCatalyst)
+let isCatalyst = true
+#else
+let isCatalyst = false
+#endif
+let isMacDesignedForPad = ProcessInfo.processInfo.isiOSAppOnMac
+
 final public class Scene: Cascade.SceneDelegate {
 
   fileprivate weak var instance: Instance?
