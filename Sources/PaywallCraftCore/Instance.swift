@@ -17,7 +17,14 @@ let isCatalyst = true
 #else
 let isCatalyst = false
 #endif
-let isMacDesignedForPad = ProcessInfo.processInfo.isiOSAppOnMac
+
+var isMacDesignedForPad: Bool {
+  if #available(iOS 14.0, *) {
+    return ProcessInfo.processInfo.isiOSAppOnMac
+  } else {
+    return false
+  }
+}
 
 final public class Scene: Cascade.SceneDelegate {
 
