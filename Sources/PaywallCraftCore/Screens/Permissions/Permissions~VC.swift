@@ -69,16 +69,16 @@ extension Permissions {
         case motion
           
         var isAvailable: Bool {
-#if targetEnvironment(macCatalyst)
+          guard isCatalyst || isMacDesignedForPad
+          else { return true }
+          
           switch self {
           case .motion: return false
           default: return true
           }
-#else
-          return true
-#endif
         }
       }
+      
       public enum Status: Equatable {
         case authorized
         case denied
