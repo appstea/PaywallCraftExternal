@@ -1,8 +1,8 @@
-# PaywallCraft
+# PaywallCraft (External)
 
 ## Common
 
-* Add dependency git@github.com:appstea/PaywallCraft.git to your target via SPM
+* Add dependency git@github.com:appstea/PaywallCraftExternal.git to your target via SPM
 
 ## Project
 
