@@ -60,8 +60,12 @@ extension Analytics {
 
     // MARK: - Init
 
-    static var shared: Analytics.Service?
-    init(config: Config) {
+    private(set) static var shared: Analytics.Service?
+    static func prepare(using config: Config) {
+      shared = .init(config: config)
+    }
+    
+    private init(config: Config) {
       self.config = config
       transmitter = Transmitter(provider: Analytics.LoggersProvider(config: config.analytics))
     }

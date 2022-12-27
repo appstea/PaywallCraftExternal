@@ -18,29 +18,30 @@
 ```
 import PaywallCraftCore
 
-enum Paywall {
+var PaywallCore: PaywallCraftCore.Instance { __Paywall.core }
+enum __Paywall {
 
-  static let core = PaywallCraftCore.Instance(
-    config: .init(
-      paywall: .init(
-        apiKey: "appl_PrQxhLfrujRwauAlGngBUArKhIK",
-        offering: "com.appstea.proto.first",
-        isDebug: isDebug,
-        urls: .init(
-          policy: "https://appstea.com/legal/privacy-policy/",
-          terms: "https://appstea.com/legal/terms-of-use/"
-        )
-      ),
-      analytics: .init(
-        isOSLogEnabled: isDebug || isAdHoc,
-        isFirebaseEnabled: true,
-        isBranchEnabled: true
-      ),
-      ui: .init(
-        permissions: .custom(),
-        paywall: .custom(),
-        upsell: .custom()
+  static let core = PaywallCraftCore.Instance(config: config)
+  
+  private static let config = PaywallCraftCore.Config(
+    paywall: .init(
+      apiKey: "appl_PrQxhLfrujRwauAlGngBUArKhIK",
+      offering: "com.appstea.proto.first",
+      isDebug: isDebug,
+      urls: .init(
+        policy: "https://appstea.com/legal/privacy-policy/",
+        terms: "https://appstea.com/legal/terms-of-use/"
       )
+    ),
+    analytics: .init(
+      isOSLogEnabled: isDebug || isAdHoc,
+      isFirebaseEnabled: true,
+      isBranchEnabled: true
+    ),
+    ui: .init(
+      permissions: .custom(),
+      paywall: .custom(),
+      upsell: .custom()
     )
   )
 
@@ -149,7 +150,7 @@ import Cascade
 final class AppDelegate: Cascade.AppDelegate {
 
   @objc
-  override func targets() -> [UIApplicationDelegate] {[ Paywall.core ]}
+  override func targets() -> [UIApplicationDelegate] {[ PaywallCore ]}
 
   // ...
 
@@ -189,7 +190,7 @@ import Cascade
 final class SceneDelegate: Cascade.SceneDelegate & UIWindowSceneDelegate {
 
   @objc
-  override func targets() -> [UISceneDelegate] {[ Paywall.core.scene ]}
+  override func targets() -> [UISceneDelegate] {[ PaywallCore.scene ]}
 
   var window: UIWindow?
 
@@ -210,7 +211,7 @@ import PaywallCraftCore
 
 class ViewController: UIViewController {
 
-  private lazy var bannerView = Paywall.core.upsell(
+  private lazy var bannerView = PaywallCore.upsell(
     source: PaywallCraftCore.Paywall.Source.bottomUpsell,
     screen: PaywallCraftCore.Paywall.Screen.initial,
     from: self,
@@ -239,7 +240,7 @@ class ViewController: UIViewController {
     // layout upsell view
     // e.g. via PinLayout
     let safeArea = view.pin.safeArea
-    if !Paywall.core.isPremium {
+    if !PaywallCore.isPremium {
       upsellView.pin.start().end()
         .bottom(safeArea.bottom)
         .sizeToFit(.width)
@@ -253,28 +254,28 @@ To make paywall screens work as intended (to be shown from upsell etc) you need 
 ```
 import PaywallCraftCore
 
-Paywall.core.assignKeyWindow(window)
+PaywallCore.assignKeyWindow(window)
 ```
 
 * To show Permissions screen:
 ```
 import PaywallCraftCore
 
-await Paywall.core.showPermissions()
+await PaywallCore.showPermissions()
 ```
 
 * To show Onboarding Paywall screen:
 ```
 import PaywallCraftCore
 
-await Paywall.core.showOnboardingPaywall()
+await PaywallCore.showOnboardingPaywall()
 ```
 
 * To perform ATT check:
 ```
 import PaywallCraftCore
 
-await Paywall.core.checkATT()
+await PaywallCore.checkATT()
 ```
 
 * To create custom Paywall Source or Screen entitiy:
@@ -293,5 +294,5 @@ struct CustomScreen: IPaywallScreen {
 
 * To use custom screens and/or sources it's possible to make:
 ```
-Paywall.core.showPaywall(source: CustomSource(), screen: CustomScreen())
+PaywallCore.showPaywall(source: CustomSource(), screen: CustomScreen())
 ```

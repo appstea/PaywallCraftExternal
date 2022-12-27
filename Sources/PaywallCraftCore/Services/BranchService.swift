@@ -14,7 +14,13 @@ final class BranchService: AppService {
 
   // MARK: - Init
 
-  static let shared: BranchService? = BranchService()
+  private(set) static var shared: BranchService?
+  static func prepare(using config: Config) {
+    if config.analytics.isBranchEnabled {
+      shared = .init()
+    }
+  }
+  
   private override init() {
     super.init()
   }

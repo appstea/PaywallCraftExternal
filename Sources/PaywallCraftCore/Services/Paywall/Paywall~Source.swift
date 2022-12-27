@@ -30,6 +30,7 @@ public extension IPaywallSource {
 public extension Paywall.Source {
   
   static var onboarding: any IPaywallSource { Onboarding() }
+  static var `default`: any IPaywallSource { Default() }
   static var bottomUpsell: any IPaywallSource { BottomUpsell() }
   #if DEBUG
   static var debug: any IPaywallSource { Debug() }
@@ -41,6 +42,10 @@ extension Paywall.Source {
   
   struct Onboarding: IPaywallSource {
     public var analytics: IAnalyticsValue { "Onboarding".analytics() }
+  }
+  
+  struct Default: IPaywallSource {
+    public var analytics: IAnalyticsValue { "Default".analytics() }
   }
   
   struct BottomUpsell: IPaywallSource {

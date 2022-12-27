@@ -96,15 +96,21 @@ extension Paywall {
     }
 
     private let manager: PurchasesManager
-    //
+    
     var isPremium: Bool { manager.isPremium }
     var isDebugPremium: Bool {
       get { manager.debugPremium }
       set { manager.debugPremium = newValue }
     }
+    
+    // MARK: - Init
 
-    static var shared: Paywall.Service?
-    init(config: Config) {
+    private(set) static var shared: Paywall.Service?
+    static func prepare(using config: Config) {
+      shared = .init(config: config)
+    }
+    
+    private init(config: Config) {
       manager = .init(config: config)
     }
 
