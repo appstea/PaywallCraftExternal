@@ -12,20 +12,6 @@ import CallbacksCraft
 
 import PaywallCraftUI
 
-#if targetEnvironment(macCatalyst)
-let isCatalyst = true
-#else
-let isCatalyst = false
-#endif
-
-var isMacDesignedForPad: Bool {
-  if #available(iOS 14.0, *) {
-    return ProcessInfo.processInfo.isiOSAppOnMac
-  } else {
-    return false
-  }
-}
-
 final public class Scene: Cascade.SceneDelegate {
 
   fileprivate weak var instance: Instance?
@@ -67,7 +53,7 @@ final public class Instance: Cascade.AppDelegate {
     case products
     case status
   }
-  public let eventsObserver = GenericCallbacks<Event, Void>()
+  public let onEvents = GenericCallbacks<Event, Void>()
 
   private let config: Config
   private var keyWindow: UIWindow {
@@ -80,8 +66,11 @@ final public class Instance: Cascade.AppDelegate {
 
   public required init(config: Config) {
     self.config = config
-    Analytics.Service.shared = .init(config: config)
-    Paywall.Service.shared = .init(config: config)
+    Analytics.Service.prepare(using: config)
+    Paywall.Service.prepare(using: config)
+    FirebaseService.prepare(using: config)
+    BranchService.prepare(using: config)
+    
     super.init()
     subscribeOnPaywallEvents()
   }
@@ -133,7 +122,14 @@ final public class Instance: Cascade.AppDelegate {
   // MARK: Paywall screens
 
   @MainActor
-  public func upsell(source: some IPaywallSource, screen: some IPaywallScreen,
+  public func upsell(from presenter: UIViewController) -> UpsellView {
+    self.upsell(source: Paywall.Source.bottomUpsell, screen: Paywall.Screen.initial,
+                from: presenter, onEvents: nil)
+  }
+  
+  @MainActor
+  public func upsell(source: some IPaywallSource,
+                     screen: some IPaywallScreen,
                      from presenter: @escaping @autoclosure () -> UIViewController,
                      onEvents: Paywall.OnEvents? = nil) -> UpsellView {
     UpsellBuilder(config: config.ui.upsell) {
@@ -142,7 +138,12 @@ final public class Instance: Cascade.AppDelegate {
     }.build()
   }
   
-  public func showPaywall(source: some IPaywallSource, screen: some IPaywallScreen,
+  public func showPaywall() {
+    self.showPaywall(source: Paywall.Source.default, screen: Paywall.Screen.initial)
+  }
+  
+  public func showPaywall(source: some IPaywallSource,
+                          screen: some IPaywallScreen,
                           from presenter: UIViewController? = nil,
                           onEvents: Paywall.OnEvents? = nil) {
     Paywall.Service.shared?.showPaywall(source: source, screen: screen,
@@ -150,7 +151,8 @@ final public class Instance: Cascade.AppDelegate {
   }
   
   @MainActor
-  public func paywallScreen(source: some IPaywallSource, screen: some IPaywallScreen,
+  public func paywallScreen(source: some IPaywallSource,
+                            screen: some IPaywallScreen,
                             onEvents: Paywall.OnEvents? = nil) -> Paywall.ViewController? {
     Paywall.Service.shared?.paywallScreen(source: source, screen: screen, onEvents: onEvents)
   }
@@ -164,8 +166,8 @@ private extension Instance {
   func subscribeOnPaywallEvents() {
     Notification.Paywall.Update.observe(on: .main) { [weak self] e in
       switch e {
-      case .products: self?.eventsObserver(.products)
-      case .status: self?.eventsObserver(.status)
+      case .products: self?.onEvents(.products)
+      case .status: self?.onEvents(.status)
       }
     }.bind(to: self)
   }

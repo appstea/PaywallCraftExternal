@@ -15,7 +15,13 @@ final class FirebaseService: AppService {
 
   // MARK: - Init
 
-  static let shared: FirebaseService? = FirebaseService()
+  private(set) static var shared: FirebaseService?
+  static func prepare(using config: Config) {
+    if config.analytics.isFirebaseEnabled {
+      shared = .init()
+    }
+  }
+  
   private override init() {
     super.init()
   }
