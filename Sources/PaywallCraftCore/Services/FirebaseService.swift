@@ -30,7 +30,7 @@ final class FirebaseService: AppService {
 
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: LaunchOptions? = nil) -> Bool {
-    FirebaseApp.configure()
+    //FirebaseApp.configure()
     Messaging.messaging().delegate = messagingListener
     return true
   }
