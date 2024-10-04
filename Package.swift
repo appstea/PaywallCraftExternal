@@ -41,8 +41,7 @@ let package = Package(
       .package(url: "https://github.com/ashleymills/Reachability.swift", branch: "master"),
       
 //      .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "9.1.0")),
-      
-      .package(url: "https://github.com/BranchMetrics/ios-branch-deep-linking-attribution", .upToNextMajor(from: "1.42.0"))
+//      .package(url: "https://github.com/BranchMetrics/ios-branch-deep-linking-attribution", .upToNextMajor(from: "1.42.0"))
     ],
     targets: [
 
@@ -69,9 +68,10 @@ let package = Package(
               .product(name: "StackCraft", package: "StackCraft"),
               .product(name: "RevenueCat", package: "purchases-ios"),
               .product(name: "Reachability", package: "Reachability.swift"),
+              
 //              .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
 //              .product(name: "FirebaseMessaging", package: "firebase-ios-sdk"),
-              .product(name: "Branch", package: "ios-branch-deep-linking-attribution"),
+//              .product(name: "Branch", package: "ios-branch-deep-linking-attribution"),
             ],
             linkerSettings: [
               .linkedFramework("UIKit"),

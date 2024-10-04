@@ -41,7 +41,7 @@ extension Analytics {
     func loggers() -> [IAnalyticsLogger?] {[
       config.isOSLogEnabled ? OSLogger() : nil,
 //      config.isFirebaseEnabled ? FirebaseService.shared.map { _ in FIRLogger() } : nil,
-      config.isBranchEnabled ? BranchService.shared.map { _ in BranchLogger() } : nil,
+//      config.isBranchEnabled ? BranchService.shared.map { _ in BranchLogger() } : nil,
     ]}
 
   }
