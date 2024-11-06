@@ -7,7 +7,7 @@ let package = Package(
     name: "PaywallCraft",
     defaultLocalization: "en",
     platforms: [
-      .iOS(.v13),
+        .iOS(.v15),
     ],
     products: [
         .library(
