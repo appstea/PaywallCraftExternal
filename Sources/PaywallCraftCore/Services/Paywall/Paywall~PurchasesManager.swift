@@ -79,7 +79,7 @@ extension Paywall {
 
       Purchases.logLevel = isDebug ? .debug : .warn
       let rcConfiguration = RevenueCat.Configuration.Builder(withAPIKey: config.paywall.apiKey)
-          .with(usesStoreKit2IfAvailable: false)
+          //.with(usesStoreKit2IfAvailable: false)
           .build()
       Purchases.configure(with: rcConfiguration)
       
@@ -309,26 +309,57 @@ private extension Paywall.PurchasesManager {
   func getProductsInfo() {
     productsRequestTry += 1
     guard productsRequestTry <= Const.requestMaxTryCount else {
+      debugPrint("[RevenueCat ERROR] Превышено максимальное количество попыток запроса продуктов.")
       isLoadingProducts = false
       return
     }
-
+    
     isLoadingProducts = true
-    Purchases.shared.getOfferings { [weak self] offerings, _ in
-      guard let self = self else { return }
-
-      if let packages = offerings?.current?.availablePackages {
+    debugPrint("[RevenueCat INFO] Начинаем загрузку продуктов. Попытка номер: \(productsRequestTry)")
+    
+    Purchases.shared.getOfferings { [weak self] offerings, error in
+      guard let self = self else {
+        debugPrint("[RevenueCat ERROR] Self is nil, завершение выполнения.")
+        return
+      }
+      
+      // Обработка ошибки при получении предложений
+      if let error = error {
+        debugPrint("[RevenueCat ERROR] Не удалось получить предложения: \(error.localizedDescription)")
+        self.isLoadingProducts = false
+        return
+      }
+      
+      // Проверка наличия предложений
+      guard let offerings = offerings else {
+        debugPrint("[RevenueCat ERROR] Предложения отсутствуют.")
+        self.isLoadingProducts = false
+        return
+      }
+      
+      // Получение доступных пакетов из текущего предложения
+      if let packages = offerings.current?.availablePackages {
+        debugPrint("[RevenueCat INFO] Найдено \(packages.count) пакетов в текущем предложении.")
         for package in packages {
           self.products.insert(package.storeProduct)
+          debugPrint("[RevenueCat DEBUG] Продукт добавлен из текущего предложения: \(package.storeProduct.productIdentifier)")
         }
+      } else {
+        debugPrint("[RevenueCat WARNING] В текущем предложении отсутствуют доступные пакеты.")
       }
-
-      if let packages = offerings?.offering(identifier: self.rcSetup.offering)?.availablePackages {
+      
+      // Получение пакетов по конкретному идентификатору предложения
+      if let packages = offerings.offering(identifier: self.rcSetup.offering)?.availablePackages {
+        debugPrint("[RevenueCat INFO] Найдено \(packages.count) пакетов для предложения с идентификатором '\(self.rcSetup.offering)'.")
         for package in packages {
           self.products.insert(package.storeProduct)
+          debugPrint("[RevenueCat DEBUG] Продукт добавлен из предложения с идентификатором: \(package.storeProduct.productIdentifier)")
         }
+      } else {
+        debugPrint("[RevenueCat WARNING] В предложении с идентификатором '\(self.rcSetup.offering)' отсутствуют доступные пакеты.")
       }
-      debugPrint("[DEBUG] Products: \(self.products)")
+      
+      debugPrint("[RevenueCat INFO] Загруженные продукты: \(self.products)")
       self.isLoadingProducts = false
       Notification.Paywall.Update.post(.products)
     }
