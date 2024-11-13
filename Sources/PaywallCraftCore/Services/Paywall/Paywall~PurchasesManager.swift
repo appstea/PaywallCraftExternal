@@ -76,19 +76,17 @@ extension Paywall {
       isDebug = config.paywall.isDebug
       rcSetup = .init(offering: config.paywall.offering)
       super.init()
-
+      
       Purchases.logLevel = isDebug ? .debug : .warn
+      debugPrint("[RevenueCat INFO] apiKey", config.paywall.apiKey)
+      debugPrint("[RevenueCat INFO] offering", config.paywall.offering)
+      debugPrint("[RevenueCat INFO] config", config)
       let rcConfiguration = RevenueCat.Configuration.Builder(withAPIKey: config.paywall.apiKey)
-          //.with(usesStoreKit2IfAvailable: false)
-          .build()
+      //.with(usesStoreKit2IfAvailable: false)
+        .build()
       Purchases.configure(with: rcConfiguration)
       
-      if #available(iOS 14.3, *) {
-          Purchases.shared.attribution.enableAdServicesAttributionTokenCollection()
-      }
-      else {
-          Purchases.automaticAppleSearchAdsAttributionCollection = true
-      }
+      Purchases.shared.attribution.enableAdServicesAttributionTokenCollection()
       Purchases.shared.delegate = self
       
       SKPaymentQueue.default().add(transactionsObserver)
